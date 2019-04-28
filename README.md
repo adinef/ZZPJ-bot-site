@@ -13,9 +13,8 @@ Apliakcja tworzona jest w języku Java, obecnie stos technologiczny to:
 - MongoDB
 
 ### Organizacja pracy
-Wszystkie zadania przydzielane są na platformie PivotalTracker. Jesli jesteś zainteresowany przebiegiem pracy to napisz na:
-210171@edu.p.lodz.pl.
-Komunikacja przebiega na naszym slacku na zzpj-2019.slack.com.
+Wszystkie zadania przydzielane są na platformie [PivotalTracker](https://www.pivotaltracker.com/projects/2336446/)
+Komunikacja przebiega na [naszym Slacku](http://zzpj-2019.slack.com).
 
 # Autorzy
 - Adrian Fijałkowski,
