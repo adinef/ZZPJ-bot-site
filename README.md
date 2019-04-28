@@ -1,4 +1,4 @@
-# ZZPJ-slack-discord-bot-integration
+# ZZPJ-slack-discord-bot-integration [![Build Status](https://travis-ci.org/adinef/ZZPJ-bot-site.svg?branch=master)](https://travis-ci.org/adinef/ZZPJ-bot-site)
 Projekt na zajęcia z ZZPJ
 ## Cel
 Aplikacja polega na integracji kilku API w jednym miejscu.
