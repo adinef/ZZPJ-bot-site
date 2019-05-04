@@ -1,4 +1,4 @@
-package pl.lodz.p.it.zzpj.botsite.controllers;
+package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

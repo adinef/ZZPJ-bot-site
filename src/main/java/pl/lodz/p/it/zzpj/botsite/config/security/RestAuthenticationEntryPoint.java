@@ -1,4 +1,4 @@
-package pl.lodz.p.it.zzpj.botsite.config;
+package pl.lodz.p.it.zzpj.botsite.config.security;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;

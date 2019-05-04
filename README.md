@@ -23,12 +23,13 @@ Konfiguracja połączenia:
 - Host: 192.168.99.100
 - Port: 27017
 - Dane logowania: podstawowe, puste
+
 W przypadku adresu hosta oczywiście mogą istnieć różnice, stąd też albo konieczna jest zmiana,
 albo mapowanie adresu, tj. na przykłąd przez plik *hosts*.
 
 ## Api
 Api łączy się przez port *8080*, docelowo wszystkie operacje rest, które ma wykonywać admin kryją się pod adresem */api/admin*, oczywiście cała reszta, tudzież dla klienta bądź niezalogowanego użytkownika pod adresem */api*.
-
+Na potrzeby testów API od razu próbuje utworzyć konto administracyjne o loginie: admin oraz haśle: admin.
 # Autorzy
 - Adrian Fijałkowski,
 - Dominik Lange, 

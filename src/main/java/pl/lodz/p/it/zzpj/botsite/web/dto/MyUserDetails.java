@@ -1,14 +1,14 @@
-package pl.lodz.p.it.zzpj.botsite.entities;
+package pl.lodz.p.it.zzpj.botsite.web.dto;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.lodz.p.it.zzpj.botsite.entities.User;
 
 import java.util.Collection;
 import java.util.List;
 
-@Slf4j
 public class MyUserDetails implements UserDetails {
     private final User user;
 
@@ -18,16 +18,13 @@ public class MyUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorityList = AuthorityUtils.createAuthorityList(
+        return AuthorityUtils.createAuthorityList(
                 user
                         .getRoles()
                         .stream()
                         .map((elem) -> "ROLE_" + elem.getRoleName())
                         .toArray(String[]::new)
         );
-        authorityList.forEach(System.out::println);
-        return authorityList;
-
     }
 
     @Override

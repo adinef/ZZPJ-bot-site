@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import pl.lodz.p.it.zzpj.botsite.entities.MyUserDetails;
+import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.UserRetrievalException;
