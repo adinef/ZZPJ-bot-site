@@ -1,19 +1,21 @@
 package pl.lodz.p.it.zzpj.botsite.web.dto;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 
 import java.util.Collection;
-import java.util.List;
 
 public class MyUserDetails implements UserDetails {
     private final User user;
 
-    public MyUserDetails(User user) {
+    private MyUserDetails(User user) {
         this.user = user;
+    }
+
+    public static UserDetails of(User user) {
+        return new MyUserDetails(user);
     }
 
     @Override
