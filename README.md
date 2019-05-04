@@ -29,7 +29,7 @@ albo mapowanie adresu, tj. na przykłąd przez plik *hosts*.
 
 ## Api
 Api łączy się przez port *8080*, docelowo wszystkie operacje rest, które ma wykonywać admin kryją się pod adresem */api/admin*, oczywiście cała reszta, tudzież dla klienta bądź niezalogowanego użytkownika pod adresem */api*.
-Na potrzeby testów API od razu próbuje utworzyć konto administracyjne o loginie: admin oraz haśle: admin.
+Na potrzeby testów API od razu próbuje utworzyć konto administracyjne o loginie: admin oraz haśle: admin, ale tylko jeśli aktywny jest profil Springa **init**.
 # Autorzy
 - Adrian Fijałkowski,
 - Dominik Lange, 
