@@ -34,7 +34,7 @@ class MyUserDetailsTest {
     }
 
     @Test
-    void getAuthoritiesReturnsEmpyListOnNoAuthorities() {
+    void getAuthoritiesReturnsEmptyListOnNoAuthorities() {
         User user = new User();
         UserDetails details = MyUserDetails.of(user);
         Collection<? extends GrantedAuthority> authoritiesRetrieved = details.getAuthorities();
