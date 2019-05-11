@@ -14,7 +14,7 @@ import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import java.util.Optional;
 
 @Service("mongoUserService")
-public class UserServiceImpl implements UserDetailsService, UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
@@ -34,6 +34,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
+    public void addUser(User user) {
+
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
             return MyUserDetails.of(this.findByLogin(username));
@@ -41,4 +46,5 @@ public class UserServiceImpl implements UserDetailsService, UserService {
             throw new UsernameNotFoundException(e.getMessage());
         }
     }
+
 }
