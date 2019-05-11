@@ -2,14 +2,15 @@ package pl.lodz.p.it.zzpj.botsite.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.UserRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
+import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 
 import java.util.Optional;
 
@@ -17,10 +18,15 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -34,8 +40,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(User user) {
-
+    public void addUser(User user) throws UsernameAlreadyExistsException {
+        if (!this.userRepository.findById(user.getLogin()).isPresent()) {
+            user.setPassword(
+                    this.passwordEncoder.encode(user.getPassword())
+            );
+           this.userRepository.save(user);
+        } else {
+            throw new UsernameAlreadyExistsException("Username is already taken");
+        }
     }
 
     @Override
