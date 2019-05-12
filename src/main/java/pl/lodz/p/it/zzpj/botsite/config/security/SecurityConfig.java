@@ -20,15 +20,16 @@ import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private UserDetailsService userDetailsService;
 
     @Autowired
-    public SecurityConfig(@Qualifier("mongoUserService") final UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
+    @Qualifier("mongoUserService")
+    private UserDetailsService userDetailsService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+//        http.authorizeRequests().antMatchers("/api*").permitAll();
+
         http
                 .csrf().disable()
                 .exceptionHandling()
@@ -36,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/admin/**").hasRole(UserRole.ADMIN.getRoleName())
-                .antMatchers("/api/**").authenticated()
+                .antMatchers("*").permitAll()
                 .and()
                 .formLogin()
                 .loginPage("/login")
@@ -45,6 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                 .logoutUrl("/logout");
+
     }
 
     @Override
