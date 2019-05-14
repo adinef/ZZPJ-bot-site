@@ -18,6 +18,6 @@ public class Bot {
     private String id;
     private String name;
     private String token;
-    private String chanel;
+    private String channel;
 
 }
