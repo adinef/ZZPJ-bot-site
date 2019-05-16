@@ -6,4 +6,12 @@ public class BotAlreadyExistsException extends Exception {
         super(message);
     }
 
+    public BotAlreadyExistsException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public BotAlreadyExistsException(Throwable cause) {
+        super(cause);
+    }
+
 }
