@@ -17,6 +17,7 @@ public class BotServiceImpl implements BotService {
         this.botRepository = botRepository;
     }
 
+    @Override
     public Bot findById(String id) throws BotRetrievalException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
@@ -26,6 +27,7 @@ public class BotServiceImpl implements BotService {
         }
     }
 
+    @Override
     public void addBot(Bot bot) throws BotAlreadyExistsException {
         if (!this.botRepository.findById(bot.getId()).isPresent()) {
             this.botRepository.save(bot);
@@ -34,6 +36,7 @@ public class BotServiceImpl implements BotService {
         }
     }
 
+    @Override
     public void updateBotName(String id, String name) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
@@ -44,6 +47,7 @@ public class BotServiceImpl implements BotService {
         }
     }
 
+    @Override
     public void updateBotToken(String id, String token) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
@@ -54,6 +58,7 @@ public class BotServiceImpl implements BotService {
         }
     }
 
+    @Override
     public void updateBotChannel(String id, String channel) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
@@ -64,6 +69,7 @@ public class BotServiceImpl implements BotService {
         }
     }
 
+    @Override
     public void deleteBot(String id) throws BotNotFoundException, BotRetrievalException {
         if (!this.botRepository.findById(id).isPresent()) {
             throw new BotNotFoundException("Bot with that ID not found.");
