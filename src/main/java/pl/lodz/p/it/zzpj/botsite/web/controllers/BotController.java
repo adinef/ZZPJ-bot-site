@@ -20,8 +20,8 @@ public class BotController {
     @Autowired
     BotService botService;
 
-    @PostMapping("/newBot")
-    public void registerUser(@RequestBody BotCreationDTO dto) throws BotAlreadyExistsException {
+    @PostMapping("/")
+    public void createBot(@RequestBody BotCreationDTO dto) throws BotAlreadyExistsException {
         Bot bot = modelMapper.map(dto, Bot.class);
         this.botService.addBot(bot);
     }
