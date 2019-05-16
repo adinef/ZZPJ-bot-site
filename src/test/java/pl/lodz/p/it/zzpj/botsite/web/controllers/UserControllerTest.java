@@ -54,7 +54,7 @@ public class UserControllerTest {
         String json = gson.toJson(dto);
 
         mockMvc.perform(
-                post("/api/user/newUser")
+                post("/api/user/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
         ).andExpect(status().isOk());

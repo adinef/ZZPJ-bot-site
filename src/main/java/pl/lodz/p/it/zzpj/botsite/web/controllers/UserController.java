@@ -20,7 +20,7 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @PostMapping("/newUser")
+    @PostMapping("/")
     public void registerUser(@RequestBody UserRegistrationDto dto) throws UsernameAlreadyExistsException {
         User user = modelMapper.map(dto, User.class);
         this.userService.addUser(user);

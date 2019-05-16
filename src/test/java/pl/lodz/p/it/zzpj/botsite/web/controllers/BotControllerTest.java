@@ -43,7 +43,7 @@ public class BotControllerTest {
     }
 
     @Test
-    public void registerUserShouldWorkAsExpected() throws Exception {
+    public void createBotShouldWorkAsExpected() throws Exception {
 
         String id = ObjectId.get().toString();
         Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
@@ -52,7 +52,7 @@ public class BotControllerTest {
         String json = gson.toJson(dto);
 
         mockMvc.perform(
-                post("/api/bot/newBot")
+                post("/api/bot/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
         ).andExpect(status().isOk());
