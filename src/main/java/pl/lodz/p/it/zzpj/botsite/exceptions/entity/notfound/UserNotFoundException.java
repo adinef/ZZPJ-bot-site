@@ -1,6 +1,6 @@
-package pl.lodz.p.it.zzpj.botsite.exceptions;
+package pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound;
 
-public class UserNotFoundException extends Exception {
+public class UserNotFoundException extends NotFoundException {
     public UserNotFoundException() {
     }
 

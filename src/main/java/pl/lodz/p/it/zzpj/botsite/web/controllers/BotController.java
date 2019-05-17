@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
-import pl.lodz.p.it.zzpj.botsite.exceptions.BotAlreadyExistsException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
 
@@ -15,10 +15,14 @@ import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
 @RequestMapping("/api/bot")
 public class BotController {
 
-    ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper;
+    private final BotService botService;
 
     @Autowired
-    BotService botService;
+    public BotController(ModelMapper modelMapper, BotService botService) {
+        this.modelMapper = modelMapper;
+        this.botService = botService;
+    }
 
     @PostMapping("/")
     public void createBot(@RequestBody BotCreationDTO dto) throws BotAlreadyExistsException {

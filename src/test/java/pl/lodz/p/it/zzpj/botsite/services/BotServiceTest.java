@@ -9,9 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
-import pl.lodz.p.it.zzpj.botsite.exceptions.BotAlreadyExistsException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.BotNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.BotRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.repositories.BotRepository;
 
 import java.util.Optional;

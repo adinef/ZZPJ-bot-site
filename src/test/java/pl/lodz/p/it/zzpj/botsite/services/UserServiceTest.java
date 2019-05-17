@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UsernameAlreadyExistsException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 
 import java.util.Optional;
