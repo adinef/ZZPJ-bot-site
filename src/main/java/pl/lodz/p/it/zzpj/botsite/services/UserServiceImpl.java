@@ -6,9 +6,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UsernameAlreadyExistsException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 

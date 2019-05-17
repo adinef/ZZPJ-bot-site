@@ -3,7 +3,9 @@ package pl.lodz.p.it.zzpj.botsite.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
-import pl.lodz.p.it.zzpj.botsite.exceptions.*;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.BotRepository;
 
 import java.util.Optional;

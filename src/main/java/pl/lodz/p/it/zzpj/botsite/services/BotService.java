@@ -1,9 +1,9 @@
 package pl.lodz.p.it.zzpj.botsite.services;
 
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
-import pl.lodz.p.it.zzpj.botsite.exceptions.BotAlreadyExistsException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.BotNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.BotRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
 
 public interface BotService {
     Bot findById(String id) throws BotRetrievalException;

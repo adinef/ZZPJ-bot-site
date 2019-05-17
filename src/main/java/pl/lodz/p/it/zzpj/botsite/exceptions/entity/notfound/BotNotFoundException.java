@@ -1,6 +1,6 @@
-package pl.lodz.p.it.zzpj.botsite.exceptions;
+package pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound;
 
-public class BotNotFoundException extends Exception {
+public class BotNotFoundException extends NotFoundException {
     public BotNotFoundException() {
     }
 
