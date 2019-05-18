@@ -6,4 +6,5 @@ import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 
 @Repository
 public interface UserTaskRepository extends MongoRepository<UserTask, String> {
+
 }
