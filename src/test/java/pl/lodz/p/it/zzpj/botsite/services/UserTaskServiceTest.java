@@ -15,8 +15,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskStatusException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
 import java.time.DateTimeException;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -84,13 +83,7 @@ class UserTaskServiceTest {
 
     @Test
     void updateDateShouldChangeTaskDate() throws DateTimeException, UserTaskNotFoundException, UserTaskIdAlreadyExistsException {
-        Date date = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.DATE, 1);
-        Date today = calendar.getTime();
-        calendar.add(Calendar.DATE, 2);
-        Date tomorrow = calendar.getTime();
+        LocalDateTime today = LocalDateTime.now();
         UserTask task = UserTask
                 .builder()
                 .id("id")
@@ -99,23 +92,19 @@ class UserTaskServiceTest {
         when(userTaskRepository
                 .findById(task.getId())
         ).thenReturn(Optional.of(task));
-        userTaskService.updateDate(task.getId(), tomorrow);
-        Assertions.assertEquals(tomorrow, task.getReminderDate());
+        userTaskService.updateDate(task.getId(), today.plusDays(1));
+        Assertions.assertEquals(today.plusDays(1), task.getReminderDate());
     }
 
     @Test
     void updateDateShouldThrowDateTimeException() {
-        Date date = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.add(Calendar.DATE, -1);
-        Date yesterday = calendar.getTime();
+        LocalDateTime today = LocalDateTime.now();
         UserTask task = UserTask
                 .builder()
                 .id("id")
-                .reminderDate(new Date())
+                .reminderDate(today)
                 .build();
-        Assertions.assertThrows(DateTimeException.class, () -> userTaskService.updateDate(task.getId(), yesterday));
+        Assertions.assertThrows(DateTimeException.class, () -> userTaskService.updateDate(task.getId(), today.minusDays(1)));
     }
 
     @Test

@@ -10,7 +10,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskStatusException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
 import java.time.DateTimeException;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,24 +45,24 @@ public class UserTaskServiceImpl implements UserTaskService {
 
     //TODO Need to decide if it is necessary
     @Override
-    public List<UserTask> findListByUserId(String userId) throws UserTaskNotFoundException {
+    public List<UserTask> getListOfUserTasksByUserId(String userId) throws UserTaskNotFoundException {
         return null;
     }
 
     //TODO Need to decide if it is necessary
     @Override
-    public List<UserTask> findListByBotId(String botId) throws UserTaskNotFoundException {
+    public List<UserTask> getListOfUserTasksByBotId(String botId) throws UserTaskNotFoundException {
         return null;
     }
 
     @Override
-    public void updateDate(String id, Date newDate) throws UserTaskNotFoundException, DateTimeException {
-        if (newDate.before(new Date())) {
+    public void updateDate(String id, LocalDateTime newDateTime) throws UserTaskNotFoundException, DateTimeException {
+        if (newDateTime.isBefore(LocalDateTime.now())) {
             throw new DateTimeException("Cannot set reminder to this date");
         }
         try {
             Optional<UserTask> task = this.userTaskRepository.findById(id);
-            (task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."))).setReminderDate(newDate);
+            (task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."))).setReminderDate(newDateTime);
             this.userTaskRepository.save(task.get());
         } catch (final Exception e) {
             throw new UserTaskNotFoundException("Task with that ID not found.", e);
