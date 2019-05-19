@@ -17,7 +17,7 @@ import java.util.Date;
 @Builder
 public class UserTask {
     @Id
-    private String userTaskId;
+    private String id;
     @DBRef
     private String botId;
     @DBRef

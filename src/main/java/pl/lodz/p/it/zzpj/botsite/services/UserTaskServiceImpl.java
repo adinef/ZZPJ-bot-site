@@ -8,7 +8,6 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskStatusException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.time.DateTimeException;
 import java.util.Date;
@@ -27,7 +26,7 @@ public class UserTaskServiceImpl implements UserTaskService {
 
     @Override
     public void addUserTask(UserTask task) throws UserTaskIdAlreadyExistsException {
-        if (!this.userTaskRepository.findById(task.getUserTaskId()).isPresent()) {
+        if (!this.userTaskRepository.findById(task.getId()).isPresent()) {
             this.userTaskRepository.save(task);
         } else {
             throw new UserTaskIdAlreadyExistsException("Task with that ID already exists");
@@ -35,9 +34,9 @@ public class UserTaskServiceImpl implements UserTaskService {
     }
 
     @Override
-    public UserTask findById(String userTaskId) throws UserTaskRetrievalException {
+    public UserTask findById(String id) throws UserTaskRetrievalException {
         try {
-            Optional<UserTask> task = this.userTaskRepository.findById(userTaskId);
+            Optional<UserTask> task = this.userTaskRepository.findById(id);
             return task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
         } catch (final Exception e) {
             throw new UserTaskRetrievalException("Could not retrieve task by ID.", e);
@@ -47,22 +46,22 @@ public class UserTaskServiceImpl implements UserTaskService {
     //TODO Need to decide if it is necessary
     @Override
     public List<UserTask> findListByUserId(String userId) throws UserTaskNotFoundException {
-        throw new NotImplementedException();
+        return null;
     }
 
     //TODO Need to decide if it is necessary
     @Override
     public List<UserTask> findListByBotId(String botId) throws UserTaskNotFoundException {
-        throw new NotImplementedException();
+        return null;
     }
 
     @Override
-    public void updateDate(String userTaskId, Date newDate) throws UserTaskNotFoundException, DateTimeException {
+    public void updateDate(String id, Date newDate) throws UserTaskNotFoundException, DateTimeException {
         if (newDate.before(new Date())) {
             throw new DateTimeException("Cannot set reminder to this date");
         }
         try {
-            Optional<UserTask> task = this.userTaskRepository.findById(userTaskId);
+            Optional<UserTask> task = this.userTaskRepository.findById(id);
             (task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."))).setReminderDate(newDate);
             this.userTaskRepository.save(task.get());
         } catch (final Exception e) {
@@ -71,30 +70,30 @@ public class UserTaskServiceImpl implements UserTaskService {
     }
 
     @Override
-    public void updateIsRepeatableStatus(String userTaskId, boolean status) throws UserTaskStatusException {
+    public void updateIsRepeatableStatus(String id, boolean status) throws UserTaskStatusException {
         try {
-            Optional<UserTask> task = this.userTaskRepository.findById(userTaskId);
+            Optional<UserTask> task = this.userTaskRepository.findById(id);
             (task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."))).setRepeatable(status);
             this.userTaskRepository.save(task.get());
         } catch (final Exception e) {
-            throw new UserTaskStatusException(String.format("Task for %s cannot be updated", userTaskId), e);
+            throw new UserTaskStatusException(String.format("Task for %s cannot be updated", id), e);
         }
     }
 
     @Override
-    public void updateIsDoneStatus(String userTaskId, boolean status) throws UserTaskStatusException{
+    public void updateIsDoneStatus(String id, boolean status) throws UserTaskStatusException{
         try {
-            Optional<UserTask> task = this.userTaskRepository.findById(userTaskId);
+            Optional<UserTask> task = this.userTaskRepository.findById(id);
             (task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."))).setDone(status);
             this.userTaskRepository.save(task.get());
         } catch (final Exception e) {
-            throw new UserTaskStatusException(String.format("Task for %s cannot be updated", userTaskId), e);
+            throw new UserTaskStatusException(String.format("Task for %s cannot be updated", id), e);
         }
     }
 
     //TODO Message implementation needed
     @Override
     public void sendMessage(String botId, String messageId) {
-        throw new NotImplementedException();
+
     }
 }
