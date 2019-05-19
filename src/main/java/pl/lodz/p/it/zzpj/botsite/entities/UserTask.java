@@ -8,7 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Document
 @Data
@@ -22,17 +22,16 @@ public class UserTask {
     private String botId;
     @DBRef
     private String messageId;
-    //TODO UserId can be removed if not necessary
     @DBRef
     private String userId;
     /**
      * Date of task creation
      */
-    private Date creationDate;
+    private LocalDateTime creationDate;
     /**
      * Date of reminder/sending message
      */
-    private Date reminderDate;
+    private LocalDateTime reminderDate;
     private boolean isRepeatable;
     private boolean isDone;
 }
