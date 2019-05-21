@@ -1,6 +1,6 @@
-package pl.lodz.p.it.zzpj.botsite.exceptions;
+package pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent;
 
-public class UserTaskIdAlreadyExistsException extends Exception{
+public class UserTaskIdAlreadyExistsException extends StateNotConsistentException{
     public UserTaskIdAlreadyExistsException() {
     }
 
@@ -14,9 +14,5 @@ public class UserTaskIdAlreadyExistsException extends Exception{
 
     public UserTaskIdAlreadyExistsException(Throwable cause) {
         super(cause);
-    }
-
-    public UserTaskIdAlreadyExistsException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

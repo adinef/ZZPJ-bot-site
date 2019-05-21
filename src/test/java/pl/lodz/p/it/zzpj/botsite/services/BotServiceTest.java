@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.BotDeletionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
@@ -17,6 +19,7 @@ import pl.lodz.p.it.zzpj.botsite.repositories.BotRepository;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -55,9 +58,8 @@ class BotServiceTest {
     }
 
     @Test
-    void addBotShouldAddBot() throws BotAlreadyExistsException {
-        String id = ObjectId.get().toString();
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+    void addBotShouldAddBot() throws BotAlreadyExistsException, BotAdditionException {
+        Bot bot = Bot.builder().name("FirstBot").channel("FirstChannel").token("FirstToken").build();
         botService.addBot(bot);
         verify(botRepository).save(bot);
     }
@@ -66,8 +68,7 @@ class BotServiceTest {
     void addBotShouldThrowBotAlreadyExistsException(){
         String id = ObjectId.get().toString();
         Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
-        when(botRepository.findById(id)).thenReturn(Optional.of(bot));
-        Assertions.assertThrows(BotAlreadyExistsException.class, () -> botService.addBot(bot));
+        Assertions.assertThrows(BotAdditionException.class, () -> botService.addBot(bot));
     }
 
     @Test
@@ -119,19 +120,18 @@ class BotServiceTest {
     }
 
     @Test
-    void deleteBotShouldDeleteBot() throws BotNotFoundException, BotRetrievalException {
+    void deleteBotShouldDeleteBot() throws BotNotFoundException, BotRetrievalException, BotDeletionException {
         String id = ObjectId.get().toString();
         Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
-        when(botRepository.findById(id)).thenReturn(Optional.of(bot));
         botService.deleteBot(id);
-        verify(botRepository).delete(bot);
+        verify(botRepository).deleteById(bot.getId());
     }
 
     @Test
-    void deleteBotShouldThrowBotNotFoundException(){
+    void deleteBotShouldThrowBotDeletionException(){
         String id = ObjectId.get().toString();
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
-        Assertions.assertThrows(BotNotFoundException.class, () -> botService.deleteBot(id));
+        doThrow(RuntimeException.class).when(botRepository).deleteById(id);
+        Assertions.assertThrows(BotDeletionException.class, () -> botService.deleteBot(id));
     }
 
 }

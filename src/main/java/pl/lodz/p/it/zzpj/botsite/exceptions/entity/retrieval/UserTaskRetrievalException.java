@@ -1,6 +1,6 @@
-package pl.lodz.p.it.zzpj.botsite.exceptions;
+package pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval;
 
-public class UserTaskRetrievalException extends Exception {
+public class UserTaskRetrievalException extends RetrievalTimeException {
     public UserTaskRetrievalException() {
     }
 
@@ -14,9 +14,5 @@ public class UserTaskRetrievalException extends Exception {
 
     public UserTaskRetrievalException(Throwable cause) {
         super(cause);
-    }
-
-    public UserTaskRetrievalException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -2,11 +2,11 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
@@ -24,9 +24,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/")
-    public void registerUser(@RequestBody UserRegistrationDto dto) throws UsernameAlreadyExistsException {
-        User user = modelMapper.map(dto, User.class);
-        this.userService.addUser(user);
+    @PostMapping(
+            value = "register",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public UserRegistrationDto registerUser(@RequestBody UserRegistrationDto dto) throws UsernameAlreadyExistsException, UserAdditionException {
+        User user = this.modelMapper.map(dto, User.class);
+        User userRegistered = this.userService.addUser(user);
+        return this.modelMapper.map(userRegistered, UserRegistrationDto.class);
     }
 }

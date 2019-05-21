@@ -1,6 +1,6 @@
-package pl.lodz.p.it.zzpj.botsite.exceptions;
+package pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound;
 
-public class UserTaskNotFoundException extends Exception {
+public class UserTaskNotFoundException extends NotFoundException {
     public UserTaskNotFoundException() {
     }
 
@@ -14,9 +14,5 @@ public class UserTaskNotFoundException extends Exception {
 
     public UserTaskNotFoundException(Throwable cause) {
         super(cause);
-    }
-
-    public UserTaskNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }
