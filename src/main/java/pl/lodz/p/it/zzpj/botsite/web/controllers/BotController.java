@@ -14,22 +14,21 @@ import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
 
-
 @RestController
 @RequestMapping("/api/bot")
 public class BotController {
 
     private final ModelMapper modelMapper;
     private final BotService botService;
-    private final UserService userService;
     private final PrincipalProvider principalProvider;
+    private final UserService userService;
 
     @Autowired
-    public BotController(ModelMapper modelMapper, BotService botService, UserService userService, PrincipalProvider principalProvider) {
+    public BotController(ModelMapper modelMapper, BotService botService, PrincipalProvider principalProvider, UserService userService) {
         this.modelMapper = modelMapper;
         this.botService = botService;
-        this.userService = userService;
         this.principalProvider = principalProvider;
+        this.userService = userService;
     }
 
     @PostMapping(
@@ -44,4 +43,5 @@ public class BotController {
         Bot addedBot = this.botService.addBot(bot);
         return this.modelMapper.map(addedBot, BotCreationDTO.class);
     }
+
 }
