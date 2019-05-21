@@ -18,8 +18,6 @@ import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
 
-import java.security.Principal;
-
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -28,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BotControllerTest {
 
     private MockMvc mockMvc;
-
 
     @Mock
     BotService botService;
@@ -71,7 +68,7 @@ public class BotControllerTest {
         when(botService.addBot(any())).thenReturn(bot);
 
         mockMvc.perform(
-                post("/api/bot")
+                post("/api/bot/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
         ).andExpect(status().isOk());
