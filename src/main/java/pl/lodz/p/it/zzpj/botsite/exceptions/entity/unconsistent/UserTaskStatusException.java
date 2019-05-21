@@ -1,6 +1,6 @@
-package pl.lodz.p.it.zzpj.botsite.exceptions;
+package pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent;
 
-public class UserTaskStatusException extends Exception {
+public class UserTaskStatusException extends StateNotConsistentException {
     public UserTaskStatusException() {
     }
 
@@ -14,9 +14,5 @@ public class UserTaskStatusException extends Exception {
 
     public UserTaskStatusException(Throwable cause) {
         super(cause);
-    }
-
-    public UserTaskStatusException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

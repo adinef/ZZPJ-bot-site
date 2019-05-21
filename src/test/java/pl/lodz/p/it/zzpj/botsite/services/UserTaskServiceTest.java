@@ -8,10 +8,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskIdAlreadyExistsException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserTaskStatusException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskStatusException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
 import java.time.DateTimeException;
@@ -60,29 +62,25 @@ class UserTaskServiceTest {
     }
 
     @Test
-    void addUserTaskShouldAddTaskToDatabase() throws UserTaskIdAlreadyExistsException {
+    void addUserTaskShouldAddTaskToDatabase() throws UserTaskIdAlreadyExistsException, UserTaskAdditionException {
         UserTask task = UserTask
                 .builder()
-                .id("id")
                 .build();
         userTaskService.addUserTask(task);
         verify(userTaskRepository).save(task);
     }
 
     @Test
-    void addUserTaskShouldThrowAlreadyExistsException() {
+    void addUserTaskShouldThrowUserTaskAdditionException() {
         UserTask task = UserTask
                 .builder()
                 .id("id")
                 .build();
-        when(userTaskRepository
-                .findById(task.getId()))
-                .thenReturn(Optional.of(task));
-        Assertions.assertThrows(UserTaskIdAlreadyExistsException.class, () -> userTaskService.addUserTask(task));
+        Assertions.assertThrows(UserTaskAdditionException.class, () -> userTaskService.addUserTask(task));
     }
 
     @Test
-    void updateDateShouldChangeTaskDate() throws DateTimeException, UserTaskNotFoundException, UserTaskIdAlreadyExistsException {
+    void updateDateShouldChangeTaskDate() throws DateTimeException, UserTaskNotFoundException, UserTaskIdAlreadyExistsException, UserTaskUpdateException {
         LocalDateTime today = LocalDateTime.now();
         UserTask task = UserTask
                 .builder()

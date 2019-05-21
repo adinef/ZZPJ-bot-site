@@ -17,6 +17,7 @@ import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,8 +32,13 @@ public class UserControllerTest {
     @Mock
     UserService userService;
 
+
+    @Mock
+    private ModelMapper modelMapper;
+
+    private ModelMapper realModelMapper = new ModelMapper();
+
     private Gson gson = new Gson();
-    private ModelMapper modelMapper = new ModelMapper();
 
     @BeforeEach
     public void setUp() {
@@ -49,12 +55,16 @@ public class UserControllerTest {
                 .password("Password")
                 .email("e123@email.ioio")
                 .build();
-        UserRegistrationDto dto = modelMapper.map(user, UserRegistrationDto.class);
+        UserRegistrationDto dto = realModelMapper.map(user, UserRegistrationDto.class);
+
+        when(modelMapper.map(user, UserRegistrationDto.class)).thenReturn(dto);
+        when(modelMapper.map(dto, User.class)).thenReturn(user);
+        when(userService.addUser(any())).thenReturn(user);
 
         String json = gson.toJson(dto);
 
         mockMvc.perform(
-                post("/api/user/")
+                post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
         ).andExpect(status().isOk());

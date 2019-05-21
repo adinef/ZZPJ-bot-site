@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
@@ -40,12 +41,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addUser(User user) throws UsernameAlreadyExistsException {
+    public User addUser(User user) throws UsernameAlreadyExistsException, UserAdditionException {
         if (!this.userRepository.findById(user.getLogin()).isPresent()) {
-            user.setPassword(
-                    this.passwordEncoder.encode(user.getPassword())
-            );
-           this.userRepository.save(user);
+            try {
+                user.setPassword(
+                        this.passwordEncoder.encode(user.getPassword())
+                );
+                return this.userRepository.save(user);
+            } catch (final Exception e) {
+                throw new UserAdditionException("Could not add user.", e);
+            }
         } else {
             throw new UsernameAlreadyExistsException("Username is already taken");
         }

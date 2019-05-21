@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 
@@ -75,7 +76,7 @@ class UserServiceTest {
     }
 
     @Test
-    void addUserShouldAddValidUser() throws UsernameAlreadyExistsException {
+    void addUserShouldAddValidUser() throws UsernameAlreadyExistsException, UserAdditionException {
         User user = User
                 .builder()
                 .login("ValidLogin")
@@ -84,7 +85,6 @@ class UserServiceTest {
                 .build();
 
         userService.addUser(user);
-
         verify(userRepository).save(user);
     }
 
@@ -106,7 +106,7 @@ class UserServiceTest {
     }
 
     @Test
-    void addUserShouldSaveUserWithHashedPassword() throws UsernameAlreadyExistsException {
+    void addUserShouldSaveUserWithHashedPassword() throws UsernameAlreadyExistsException, UserAdditionException {
 
         String usersPassword = "ExtremelyPowerfulLongPassword";
         String mockForHashedPass = "AWESOME_HASH";
@@ -130,7 +130,6 @@ class UserServiceTest {
         userService.addUser(userWithPlainTextPassword);
 
         verify(userRepository).save(userWithHashedPassword);
-
     }
 
 }
