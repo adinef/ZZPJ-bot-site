@@ -1,4 +1,4 @@
-package pl.lodz.p.it.zzpj.botsite.exceptions;
+package pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent;
 
 public class ExpiredVerificationTokenException extends Exception {
 

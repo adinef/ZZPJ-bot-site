@@ -1,15 +1,18 @@
 package pl.lodz.p.it.zzpj.botsite.services;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.VerificationTokenInfo;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UsernameAlreadyExistsException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.VerificationTokenInfoNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInfoNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 
+@Service
 public interface UserService extends UserDetailsService {
     User findByLogin(String login) throws UserRetrievalException;
-    void addUser(User user) throws UsernameAlreadyExistsException;
+    User addUser(User user) throws UsernameAlreadyExistsException, UserAdditionException;
     void saveToken(User user, String token);
     VerificationTokenInfo findVerificationTokenInfo(String token) throws VerificationTokenInfoNotFoundException;
 }

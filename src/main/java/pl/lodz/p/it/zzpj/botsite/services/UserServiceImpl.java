@@ -2,38 +2,40 @@ package pl.lodz.p.it.zzpj.botsite.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.VerificationTokenInfo;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UserRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.UsernameAlreadyExistsException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.VerificationTokenInfoNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInfoNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Service("mongoUserService")
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserDetailsService, UserService {
 
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
+
     private final VerificationTokenRepository verificationTokenRepository;
 
-    @Autowired
     public UserServiceImpl(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             VerificationTokenRepository verificationTokenRepository
     ) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.verificationTokenRepository = verificationTokenRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -46,13 +48,18 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+
     @Override
-    public void addUser(User user) throws UsernameAlreadyExistsException {
+    public User addUser(User user) throws UsernameAlreadyExistsException, UserAdditionException {
         if (!this.userRepository.findById(user.getLogin()).isPresent()) {
-            user.setPassword(
-                    this.passwordEncoder.encode(user.getPassword())
-            );
-            this.userRepository.save(user);
+            try {
+                user.setPassword(
+                        this.passwordEncoder.encode(user.getPassword())
+                );
+                return this.userRepository.save(user);
+            } catch (final Exception e) {
+                throw new UserAdditionException("Could not add user.", e);
+            }
         } else {
             throw new UsernameAlreadyExistsException("Username is already taken");
         }
@@ -79,4 +86,5 @@ public class UserServiceImpl implements UserService {
     public VerificationTokenInfo findVerificationTokenInfo(String token) throws VerificationTokenInfoNotFoundException {
         return this.verificationTokenRepository.findByToken(token).orElseThrow(() -> new VerificationTokenInfoNotFoundException());
     }
+
 }

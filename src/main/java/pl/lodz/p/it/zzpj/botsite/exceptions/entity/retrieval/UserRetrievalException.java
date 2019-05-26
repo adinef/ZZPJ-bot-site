@@ -1,6 +1,6 @@
-package pl.lodz.p.it.zzpj.botsite.exceptions;
+package pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval;
 
-public class UserRetrievalException extends Exception {
+public class UserRetrievalException extends RetrievalTimeException {
     public UserRetrievalException() {
     }
 

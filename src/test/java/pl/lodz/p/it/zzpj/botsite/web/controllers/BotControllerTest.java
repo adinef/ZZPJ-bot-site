@@ -1,6 +1,7 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import com.google.gson.Gson;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,12 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import pl.lodz.p.it.zzpj.botsite.entities.User;
-import pl.lodz.p.it.zzpj.botsite.services.UserService;
-import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
+import org.springframework.web.servlet.mvc.annotation.ResponseStatusExceptionResolver;
+import pl.lodz.p.it.zzpj.botsite.config.errorhandling.RestResponseEntityExceptionHandler;
+import pl.lodz.p.it.zzpj.botsite.entities.Bot;
+import pl.lodz.p.it.zzpj.botsite.services.BotService;
+import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -22,15 +26,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-public class UserControllerTest {
+public class BotControllerTest {
 
     private MockMvc mockMvc;
 
     @InjectMocks
-    private UserController userController;
+    private BotController botController;
 
     @Mock
-    UserService userService;
+    BotService botService;
 
     private Gson gson = new Gson();
 
@@ -39,37 +43,32 @@ public class UserControllerTest {
 
     private ModelMapper realModelMapper = new ModelMapper();
 
-
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(userController)
+                .standaloneSetup(botController)
                 .build();
     }
 
     @Test
-    public void registerUserShouldWorkAsExpected() throws Exception {
+    public void createBotShouldWorkAsExpected() throws Exception {
 
-        User user = User.builder()
-                .login("Login")
-                .password("Password")
-                .email("e123@email.ioio")
-                .build();
-        UserRegistrationDto dto = realModelMapper.map(user, UserRegistrationDto.class);
-
-        when(modelMapper.map(user, UserRegistrationDto.class)).thenReturn(dto);
-        when(modelMapper.map(dto, User.class)).thenReturn(user);
-        when(userService.addUser(any())).thenReturn(user);
-
+        String id = ObjectId.get().toString();
+        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        BotCreationDTO dto = this.realModelMapper.map(bot, BotCreationDTO.class);
         String json = gson.toJson(dto);
 
+        when(this.modelMapper.map(bot, BotCreationDTO.class)).thenReturn(dto);
+        when(this.modelMapper.map(dto, Bot.class)).thenReturn(bot);
+        when(botService.addBot(any())).thenReturn(bot);
+
         mockMvc.perform(
-                post("/api/user/register")
+                post("/api/bot")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
         ).andExpect(status().isOk());
 
-        verify(userService).addUser(any(User.class));
+        verify(botService).addBot(any(Bot.class));
 
     }
 

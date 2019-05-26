@@ -26,9 +26,15 @@ import java.util.Collections;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Qualifier("mongoUserService")
+    private UserDetailsService userDetailsService;
+
     @Autowired
-    UserDetailsService userDetailsService;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public SecurityConfig(@Qualifier("mongoUserService") final UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -41,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -84,12 +91,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         DaoAuthenticationProvider authenticationProvider =
                 new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
         return authenticationProvider;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+
 }
