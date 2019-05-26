@@ -1,6 +1,5 @@
 package pl.lodz.p.it.zzpj.botsite.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -65,6 +64,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
     }
 
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
@@ -75,11 +75,20 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public void saveToken(User user, String token) {
+    public void saveToken(User user, String token) throws UserRetrievalException {
+
+        this.findByLogin(user.getLogin());
+
         this.verificationTokenRepository.save(new VerificationTokenInfo(
                 user,
                 token
         ));
+    }
+
+    @Override
+    public void updateUser(User user) throws UserRetrievalException {
+        this.findByLogin(user.getLogin());
+        this.userRepository.save(user);
     }
 
     @Override

@@ -10,6 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
+import pl.lodz.p.it.zzpj.botsite.entities.VerificationTokenInfo;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInfoNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
@@ -17,13 +19,14 @@ import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserServiceImplTest {
 
     @Autowired
     private UserService userService;
@@ -136,5 +139,104 @@ class UserServiceTest {
 
         verify(userRepository).save(userWithHashedPassword);
     }
+
+    @Test
+    void saveTokenShouldWorkAsExpected() throws UserRetrievalException {
+
+        String token = UUID.randomUUID().toString();
+
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("somePassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        VerificationTokenInfo tokenInfo = new VerificationTokenInfo(user, token);
+
+        when(userRepository.findById(user.getLogin())).thenReturn(Optional.of(user));
+
+        this.userService.saveToken(user, token);
+
+        verify(verificationTokenRepository).save(tokenInfo);
+    }
+
+    @Test
+    void saveTokenShouldThrowExceptionWhenUserNotFound() {
+        String token = UUID.randomUUID().toString();
+
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("somePassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        when(userRepository.findById(user.getLogin())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(UserRetrievalException.class,
+                () -> userService.saveToken(user, token));
+
+    }
+
+    @Test
+    void updateUserShouldWorkAsExpected() throws UserRetrievalException {
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("ValidPassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        when(userRepository.findById(user.getLogin())).thenReturn(Optional.of(user));
+
+        userService.updateUser(user);
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void updateUserThrowExceptionWhenUserNotFound() {
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("ValidPassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        when(userRepository.findById(user.getLogin())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(UserRetrievalException.class, () -> userService.updateUser(user));
+    }
+
+    @Test
+    void findVerificationTokenInfoShouldWorkAsExpected() throws VerificationTokenInfoNotFoundException {
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("ValidPassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        String token = UUID.randomUUID().toString();
+
+        when(verificationTokenRepository.findByToken(token)).thenReturn(
+                Optional.of(new VerificationTokenInfo(user, token)));
+
+        userService.findVerificationTokenInfo(token);
+
+        verify(verificationTokenRepository).findByToken(token);
+    }
+
+    @Test
+    void findVerificationTokenInfoShouldThrowExceptionIfTokenNotFound() {
+
+        String token = UUID.randomUUID().toString();
+
+        when(verificationTokenRepository.findByToken(token)).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(VerificationTokenInfoNotFoundException.class,
+                () -> userService.findVerificationTokenInfo(token));
+    }
+
 
 }

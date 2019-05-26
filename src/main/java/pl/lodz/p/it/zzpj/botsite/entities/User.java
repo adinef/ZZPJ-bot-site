@@ -24,6 +24,6 @@ public class User  {
     @Email
     private String email;
     private String password;
-    private boolean active = true;
+    private boolean active = false;
     private List<UserRole> roles = new ArrayList<>();
 }
