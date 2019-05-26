@@ -12,6 +12,7 @@ import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
+import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
 
 import java.util.Optional;
 
@@ -31,9 +32,12 @@ class UserServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private VerificationTokenRepository verificationTokenRepository;
+
     @BeforeEach
     public void setup() {
-        this.userService = new UserServiceImpl(userRepository, passwordEncoder);
+        this.userService = new UserServiceImpl(userRepository, passwordEncoder, verificationTokenRepository);
     }
 
     @Test

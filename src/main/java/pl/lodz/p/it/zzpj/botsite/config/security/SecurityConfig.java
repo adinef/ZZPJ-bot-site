@@ -19,8 +19,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -54,7 +52,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/api/admin/**").hasRole(UserRole.ADMIN.getRoleName())
-                .antMatchers("/api/user/").anonymous()
+                .antMatchers("/api/user/register").anonymous()
                 .antMatchers("/api/**").authenticated()
                 .and()
                 .formLogin()
