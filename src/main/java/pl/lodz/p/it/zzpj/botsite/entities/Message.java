@@ -1,6 +1,5 @@
 package pl.lodz.p.it.zzpj.botsite.entities;
 
-<<<<<<< HEAD
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
