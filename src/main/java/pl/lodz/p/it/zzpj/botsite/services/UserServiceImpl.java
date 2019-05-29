@@ -16,6 +16,7 @@ import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import java.util.Optional;
 
 @Service("mongoUserService")
+
 public class UserServiceImpl implements UserDetailsService, UserService {
 
     private final UserRepository userRepository;
