@@ -6,14 +6,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
-import pl.lodz.p.it.zzpj.botsite.entities.VerificationTokenInfo;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInfoNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
-import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 
 import java.util.Optional;
@@ -25,15 +22,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final VerificationTokenRepository verificationTokenRepository;
-
     public UserServiceImpl(
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            VerificationTokenRepository verificationTokenRepository
+            PasswordEncoder passwordEncoder
     ) {
         this.userRepository = userRepository;
-        this.verificationTokenRepository = verificationTokenRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -64,7 +57,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
     }
 
-
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
@@ -75,25 +67,9 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public void saveToken(User user, String token) throws UserRetrievalException {
-
-        this.findByLogin(user.getLogin());
-
-        this.verificationTokenRepository.save(new VerificationTokenInfo(
-                user,
-                token
-        ));
-    }
-
-    @Override
     public void updateUser(User user) throws UserRetrievalException {
         this.findByLogin(user.getLogin());
         this.userRepository.save(user);
-    }
-
-    @Override
-    public VerificationTokenInfo findVerificationTokenInfo(String token) throws VerificationTokenInfoNotFoundException {
-        return this.verificationTokenRepository.findByToken(token).orElseThrow(() -> new VerificationTokenInfoNotFoundException());
     }
 
 }

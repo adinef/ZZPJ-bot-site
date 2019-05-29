@@ -14,6 +14,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.ExpiredVerificationTokenException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
+import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.events.OnUserRegistrationCompleteEvent;
 import java.util.Calendar;
@@ -24,15 +25,18 @@ public class UserController {
 
     private final ModelMapper modelMapper;
     private final UserService userService;
+    private final VerificationTokenService verificationTokenService;
     private final ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public UserController(ModelMapper modelMapper,
                           UserService userService,
+                          VerificationTokenService verificationTokenService,
                           ApplicationEventPublisher applicationEventPublisher) {
         this.modelMapper = modelMapper;
         this.userService = userService;
         this.eventPublisher = applicationEventPublisher;
+        this.verificationTokenService = verificationTokenService;
     }
 
     @PostMapping(
@@ -41,14 +45,11 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public UserRegistrationDto registerUser(@RequestBody UserRegistrationDto dto)
+    public void registerUser(@RequestBody UserRegistrationDto dto)
             throws UserAdditionException, UsernameAlreadyExistsException {
         User user = this.modelMapper.map(dto, User.class);
-        User userRegistered = this.userService.addUser(user);
-
+        this.userService.addUser(user);
         this.eventPublisher.publishEvent(new OnUserRegistrationCompleteEvent(user));
-
-        return this.modelMapper.map(userRegistered, UserRegistrationDto.class);
     }
 
     @GetMapping(
@@ -59,7 +60,7 @@ public class UserController {
     public void activateUser(@RequestParam String token) throws VerificationTokenInfoNotFoundException,
             ExpiredVerificationTokenException, UserRetrievalException {
 
-        VerificationTokenInfo tokenInfo = this.userService.findVerificationTokenInfo(token);
+        VerificationTokenInfo tokenInfo = this.verificationTokenService.findVerificationTokenInfo(token);
 
         if (tokenInfo.getExpirationDate().getTime() - Calendar.getInstance().getTime().getTime() <= 0) {
             throw new ExpiredVerificationTokenException();
@@ -70,6 +71,5 @@ public class UserController {
         this.userService.updateUser(user);
 
     }
-
 
 }

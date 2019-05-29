@@ -62,7 +62,6 @@ public class UserControllerTest {
                 .build();
         UserRegistrationDto dto = realModelMapper.map(user, UserRegistrationDto.class);
 
-        when(modelMapper.map(user, UserRegistrationDto.class)).thenReturn(dto);
         when(modelMapper.map(dto, User.class)).thenReturn(user);
         when(userService.addUser(any())).thenReturn(user);
 
