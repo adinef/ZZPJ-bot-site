@@ -1,7 +1,7 @@
 package pl.lodz.p.it.zzpj.botsite.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,12 +16,12 @@ import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import java.util.Optional;
 
 @Service("mongoUserService")
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserDetailsService, UserService {
 
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
 
-    @Autowired
     public UserServiceImpl(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder
@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService {
             throw new UserRetrievalException("Could not retrieve user by login", e);
         }
     }
+
 
     @Override
     public User addUser(User user) throws UsernameAlreadyExistsException, UserAdditionException {
@@ -63,6 +64,12 @@ public class UserServiceImpl implements UserService {
         } catch (final Exception e) {
             throw new UsernameNotFoundException(e.getMessage());
         }
+    }
+
+    @Override
+    public void updateUser(User user) throws UserRetrievalException {
+        this.findByLogin(user.getLogin());
+        this.userRepository.save(user);
     }
 
 }

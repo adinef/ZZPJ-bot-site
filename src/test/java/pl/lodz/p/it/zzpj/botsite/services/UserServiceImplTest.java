@@ -1,3 +1,4 @@
+
 package pl.lodz.p.it.zzpj.botsite.services;
 
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +14,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalExcept
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
+import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
 
 import java.util.Optional;
 
@@ -21,7 +23,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserServiceImplTest {
 
     @Autowired
     private UserService userService;
@@ -31,6 +33,9 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private VerificationTokenRepository verificationTokenRepository;
 
     @BeforeEach
     public void setup() {
@@ -130,6 +135,37 @@ class UserServiceTest {
         userService.addUser(userWithPlainTextPassword);
 
         verify(userRepository).save(userWithHashedPassword);
+    }
+
+
+
+    @Test
+    void updateUserShouldWorkAsExpected() throws UserRetrievalException {
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("ValidPassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        when(userRepository.findById(user.getLogin())).thenReturn(Optional.of(user));
+
+        userService.updateUser(user);
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void updateUserThrowExceptionWhenUserNotFound() {
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("ValidPassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        when(userRepository.findById(user.getLogin())).thenReturn(Optional.empty());
+
+        Assertions.assertThrows(UserRetrievalException.class, () -> userService.updateUser(user));
     }
 
 }

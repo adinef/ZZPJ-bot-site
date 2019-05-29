@@ -1,6 +1,7 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import com.google.gson.Gson;
+import javafx.application.Application;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -30,15 +32,18 @@ public class UserControllerTest {
     private UserController userController;
 
     @Mock
+    ApplicationEventPublisher applicationEventPublisher;
+
+    @Mock
     UserService userService;
 
+    private Gson gson = new Gson();
 
     @Mock
     private ModelMapper modelMapper;
 
     private ModelMapper realModelMapper = new ModelMapper();
 
-    private Gson gson = new Gson();
 
     @BeforeEach
     public void setUp() {
@@ -57,7 +62,6 @@ public class UserControllerTest {
                 .build();
         UserRegistrationDto dto = realModelMapper.map(user, UserRegistrationDto.class);
 
-        when(modelMapper.map(user, UserRegistrationDto.class)).thenReturn(dto);
         when(modelMapper.map(dto, User.class)).thenReturn(user);
         when(userService.addUser(any())).thenReturn(user);
 
