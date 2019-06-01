@@ -15,6 +15,8 @@ import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
 
+import javax.annotation.PostConstruct;
+
 @RestController
 @RequestMapping("/api/bot")
 @Slf4j
