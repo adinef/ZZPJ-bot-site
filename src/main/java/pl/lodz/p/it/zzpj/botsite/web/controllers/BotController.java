@@ -1,5 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
 
 @RestController
 @RequestMapping("/api/bot")
+@Slf4j
 public class BotController {
 
     private final ModelMapper modelMapper;
