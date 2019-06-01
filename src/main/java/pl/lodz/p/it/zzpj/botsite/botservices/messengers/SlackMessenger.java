@@ -23,7 +23,6 @@ public class SlackMessenger extends AbstractBotMessengerBase {
     }
 
     private class SlackMessage {
-
         @JsonProperty("text")
         private String message;
 
