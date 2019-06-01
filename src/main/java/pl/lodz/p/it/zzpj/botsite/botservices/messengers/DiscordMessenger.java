@@ -17,5 +17,20 @@ public class DiscordMessenger extends AbstractBotMessengerBase {
 
     @Override
     public void sendMessage(Message message) {
+        String token = bot.getToken();
+        this.post(bot.getChannel(), new DiscordMessage(message.getContent(), token));
+    }
+
+    private class DiscordMessage {
+        @JsonProperty("content")
+        private String content;
+
+        @JsonProperty("username")
+        private String username;
+
+        DiscordMessage(String content, String username) {
+            this.content = content;
+            this.username = username;
+        }
     }
 }
