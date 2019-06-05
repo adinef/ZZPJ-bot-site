@@ -23,6 +23,10 @@ Baza danych została zmieniona w trkacie produkcji. Na potrzbeby pokazu zdecydow
 ## Api
 Api łączy się przez port *8080*, docelowo wszystkie operacje rest, które ma wykonywać admin kryją się pod adresem */api/admin*, oczywiście cała reszta, tudzież dla klienta bądź niezalogowanego użytkownika pod adresem */api*.
 Na potrzeby testów API od razu próbuje utworzyć konto administracyjne o loginie: admin oraz haśle: admin, ale tylko jeśli aktywny jest profil Springa **init**.
+
+# Front-end
+Link do repozytorium z front-endem: https://github.com/Gnlknmd/ZZPJ-bot-site-frontend
+
 # Autorzy
 - Adrian Fijałkowski,
 - Dominik Lange, 
