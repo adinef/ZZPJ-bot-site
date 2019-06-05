@@ -1,9 +1,12 @@
 package pl.lodz.p.it.zzpj.botsite.repositories;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 
+import java.util.List;
+
 @Repository
-public interface UserTaskRepository extends MongoRepository<UserTask, String> {
+public interface UserTaskRepository extends CrudRepository<UserTask, Long> {
+    List<UserTask> findByUserId(Long userId);
 }

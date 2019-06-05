@@ -8,10 +8,10 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
 
 public interface BotService {
-    Bot findById(String id) throws BotRetrievalException;
+    Bot findById(Long id) throws BotRetrievalException;
     Bot addBot(Bot bot) throws BotAlreadyExistsException, BotAdditionException;
-    Bot updateBotName(String id, String name) throws BotNotFoundException;
-    Bot updateBotToken(String id, String token) throws BotNotFoundException;
-    Bot updateBotChannel(String id, String channel) throws BotNotFoundException;
-    void deleteBot(String id) throws BotNotFoundException, BotRetrievalException, BotDeletionException;
+    Bot updateBotName(Long id, String name) throws BotNotFoundException;
+    Bot updateBotToken(Long id, String token) throws BotNotFoundException;
+    Bot updateBotChannel(Long id, String channel) throws BotNotFoundException;
+    void deleteBot(Long id) throws BotNotFoundException, BotRetrievalException, BotDeletionException;
 }

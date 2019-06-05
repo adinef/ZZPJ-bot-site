@@ -4,22 +4,36 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
-
-@Document
+@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Bot {
+
     @Id
-    private String id;
+    @GeneratedValue
+    private Long id;
+
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String token;
+
+    @NotBlank
     private String channel;
+
+    @ManyToOne
+    private User user;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy="bot")
+    private List<UserTask> userTasks;
 
 }

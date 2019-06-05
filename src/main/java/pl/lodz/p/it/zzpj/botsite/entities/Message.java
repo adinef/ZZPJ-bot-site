@@ -4,17 +4,32 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.util.List;
+
+@Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class Message {
+
     @Id
-    private String id;
+    @GeneratedValue
+    private Long id;
+
+    @NotNull
+    @ManyToOne
+    @JoinColumn(referencedColumnName="login")
+    private User user;
+
+    @NotBlank
     private String content;
+
+    @NotNull
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "message")
+    private List<UserTask> userTasks;
 }

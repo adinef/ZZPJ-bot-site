@@ -1,7 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import com.google.gson.Gson;
-import javafx.application.Application;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -2,6 +2,7 @@ package pl.lodz.p.it.zzpj.botsite.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
@@ -13,6 +14,7 @@ import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +29,7 @@ public class UserTaskServiceImpl implements UserTaskService {
     }
 
     @Override
-    public UserTask findById(String id) throws UserTaskRetrievalException {
+    public UserTask findById(Long id) throws UserTaskRetrievalException {
         try {
             Optional<UserTask> task = this.userTaskRepository.findById(id);
             return task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
@@ -51,17 +53,17 @@ public class UserTaskServiceImpl implements UserTaskService {
     //TODO Need to decide if it is necessary
     @Override
     public List<UserTask> getListOfUserTasksByUserId(String userId) throws UserTaskNotFoundException {
-        return null;
+        return new ArrayList<>();
     }
 
     //TODO Need to decide if it is necessary
     @Override
-    public List<UserTask> getListOfUserTasksByBotId(String botId) throws UserTaskNotFoundException {
+    public List<UserTask> getListOfUserTasksByBotId(Long botId) throws UserTaskNotFoundException {
         return null;
     }
 
     @Override
-    public UserTask updateDate(String id, LocalDateTime newDateTime) throws DateTimeException, UserTaskUpdateException {
+    public UserTask updateDate(Long id, LocalDateTime newDateTime) throws DateTimeException, UserTaskUpdateException {
         if (newDateTime.isBefore(LocalDateTime.now())) {
             throw new DateTimeException("Cannot set reminder to this date");
         }
@@ -76,7 +78,7 @@ public class UserTaskServiceImpl implements UserTaskService {
     }
 
     @Override
-    public UserTask updateIsRepeatableStatus(String id, boolean status) throws UserTaskStatusException {
+    public UserTask updateIsRepeatableStatus(Long id, boolean status) throws UserTaskStatusException {
         try {
             Optional<UserTask> task = this.userTaskRepository.findById(id);
             UserTask userTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
@@ -88,7 +90,7 @@ public class UserTaskServiceImpl implements UserTaskService {
     }
 
     @Override
-    public UserTask updateIsDoneStatus(String id, boolean status) throws UserTaskStatusException{
+    public UserTask updateIsDoneStatus(Long id, boolean status) throws UserTaskStatusException{
         try {
             Optional<UserTask> task = this.userTaskRepository.findById(id);
             UserTask userTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));

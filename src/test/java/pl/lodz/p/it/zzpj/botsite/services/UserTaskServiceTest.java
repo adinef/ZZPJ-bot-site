@@ -20,6 +20,7 @@ import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,22 +44,22 @@ class UserTaskServiceTest {
     void findByIdShouldReturnEntityOfUserTask() throws UserTaskRetrievalException {
         UserTask task = UserTask
                 .builder()
-                .id("id")
+                .id(1L)
                 .build();
-        when(userTaskRepository.findById("id")).thenReturn(Optional.of(task));
-        Assertions.assertEquals("id", userTaskService.findById("id").getId());
+        when(userTaskRepository.findById(1L)).thenReturn(Optional.of(task));
+        Assertions.assertEquals((Long)1L, userTaskService.findById(1L).getId());
     }
 
     @Test
     void findByIdShouldThrowExceptionAfterDatabaseRuntimeException() {
-        when(userTaskRepository.findById(anyString())).thenThrow(RuntimeException.class);
-        Assertions.assertThrows(UserTaskRetrievalException.class, () -> userTaskService.findById("id"));
+        when(userTaskRepository.findById(any())).thenThrow(RuntimeException.class);
+        Assertions.assertThrows(UserTaskRetrievalException.class, () -> userTaskService.findById(1L));
     }
 
     @Test
     void findByIdShouldThrowExceptionWhenTaskNotFound() {
-        when(userTaskRepository.findById("id")).thenReturn(Optional.empty());
-        Assertions.assertThrows(UserTaskRetrievalException.class, () -> userTaskService.findById("id"));
+        when(userTaskRepository.findById(1L)).thenReturn(Optional.empty());
+        Assertions.assertThrows(UserTaskRetrievalException.class, () -> userTaskService.findById(1L));
     }
 
     @Test
@@ -74,7 +75,7 @@ class UserTaskServiceTest {
     void addUserTaskShouldThrowUserTaskAdditionException() {
         UserTask task = UserTask
                 .builder()
-                .id("id")
+                .id(1L)
                 .build();
         Assertions.assertThrows(UserTaskAdditionException.class, () -> userTaskService.addUserTask(task));
     }
@@ -84,7 +85,7 @@ class UserTaskServiceTest {
         LocalDateTime today = LocalDateTime.now();
         UserTask task = UserTask
                 .builder()
-                .id("id")
+                .id(1L)
                 .reminderDate(today)
                 .build();
         when(userTaskRepository
@@ -99,7 +100,7 @@ class UserTaskServiceTest {
         LocalDateTime today = LocalDateTime.now();
         UserTask task = UserTask
                 .builder()
-                .id("id")
+                .id(1L)
                 .reminderDate(today)
                 .build();
         Assertions.assertThrows(DateTimeException.class, () -> userTaskService.updateDate(task.getId(), today.minusDays(1)));
@@ -109,7 +110,7 @@ class UserTaskServiceTest {
     void updateIsRepeatableStatusShouldUpdateTaskStatus() throws UserTaskStatusException {
         UserTask task = UserTask
                 .builder()
-                .id("id")
+                .id(1L)
                 .isRepeatable(true)
                 .build();
         when(userTaskRepository
@@ -123,7 +124,7 @@ class UserTaskServiceTest {
     void updateIsDoneStatusShouldUpdateTaskStatus() throws UserTaskStatusException {
         UserTask task = UserTask
                 .builder()
-                .id("id")
+                .id(1L)
                 .isDone(false)
                 .build();
         when(userTaskRepository

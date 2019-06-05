@@ -7,11 +7,14 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalExc
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
 
+import java.util.List;
+
 public interface MessageService {
 
     Message addMessage(Message message) throws MessageAdditionException;
-    Message findById(String id) throws MessageRetrievalException;
-    Message editMessage(String id, String content) throws MessageNotFoundException;
-    void deleteMessage(String id) throws MessageDeletionException;
+    List<Message> getAllByUserId(String userId) throws MessageRetrievalException;
+    Message findById(Long id) throws MessageRetrievalException;
+    Message updateMessage(Long id, String content) throws MessageNotFoundException;
+    void deleteMessage(Long id) throws MessageDeletionException;
 
 }
