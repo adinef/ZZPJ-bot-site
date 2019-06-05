@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Service("mongoBotService")
 public class BotServiceImpl implements BotService {
+
     private final BotRepository botRepository;
 
     @Autowired
@@ -21,7 +22,7 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public Bot findById(String id) throws BotRetrievalException {
+    public Bot findById(Long id) throws BotRetrievalException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
             return bot
@@ -46,7 +47,7 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public Bot updateBotName(String id, String name) throws BotNotFoundException {
+    public Bot updateBotName(Long id, String name) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
             Bot botRetrieved = bot.orElseThrow(() -> new BotNotFoundException("Bot with that ID not found."));
@@ -58,7 +59,7 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public Bot updateBotToken(String id, String token) throws BotNotFoundException {
+    public Bot updateBotToken(Long id, String token) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
             Bot botRetrieved = bot.orElseThrow(() -> new BotNotFoundException("Bot with that ID not found."));
@@ -70,7 +71,7 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public Bot updateBotChannel(String id, String channel) throws BotNotFoundException {
+    public Bot updateBotChannel(Long id, String channel) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
             Bot botRetrieved = bot.orElseThrow(() -> new BotNotFoundException("Bot with that ID not found."));
@@ -82,7 +83,7 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public void deleteBot(String id) throws BotDeletionException {
+    public void deleteBot(Long id) throws BotDeletionException {
         try {
             this.botRepository.deleteById(id);
         } catch (final Exception e) {

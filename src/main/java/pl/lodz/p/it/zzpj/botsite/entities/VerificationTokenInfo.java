@@ -1,23 +1,29 @@
 package pl.lodz.p.it.zzpj.botsite.entities;
 
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
-@Document
+@Entity
 @Data
 public class VerificationTokenInfo {
 
     private static final int EXPIRATION_TIME = 60 * 24;
 
     @Id
+    @GeneratedValue
     private String token;
 
+    @NotNull
+    @ManyToOne
     private User user;
+
+    @NotNull
     private Date expirationDate;
 
     public VerificationTokenInfo(User user, String token) {

@@ -1,5 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.services;
 
+import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
@@ -14,11 +15,11 @@ import java.util.List;
 
 public interface UserTaskService {
     UserTask addUserTask(UserTask task) throws UserTaskIdAlreadyExistsException, UserTaskAdditionException;
-    UserTask findById(String id) throws UserTaskRetrievalException;
+    UserTask findById(Long id) throws UserTaskRetrievalException;
     List<UserTask> getListOfUserTasksByUserId(String userId) throws UserTaskNotFoundException;
-    List<UserTask> getListOfUserTasksByBotId(String botId) throws UserTaskNotFoundException;
-    UserTask updateDate(String id, LocalDateTime newDateTime) throws UserTaskNotFoundException, DateTimeException, UserTaskUpdateException;
-    UserTask updateIsRepeatableStatus(String id, boolean status) throws UserTaskStatusException;
-    UserTask updateIsDoneStatus(String id, boolean status) throws UserTaskStatusException;
+    List<UserTask> getListOfUserTasksByBotId(Long botId) throws UserTaskNotFoundException;
+    UserTask updateDate(Long id, LocalDateTime newDateTime) throws UserTaskNotFoundException, DateTimeException, UserTaskUpdateException;
+    UserTask updateIsRepeatableStatus(Long id, boolean status) throws UserTaskStatusException;
+    UserTask updateIsDoneStatus(Long id, boolean status) throws UserTaskStatusException;
     void sendMessage(String botId, String messageId);
 }
