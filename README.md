@@ -20,13 +20,6 @@ Komunikacja przebiega na [naszym Slacku](http://zzpj-2019.slack.com).
 ## Baza danych
 Baza danych została zmieniona w trkacie produkcji. Na potrzbeby pokazu zdecydowano, że użyjemy bazy danych **H2**. W razie konieczności pozwala na łatwą i bezbolesną zmianę na serwer zdalny.
 
-W przypadku adresu hosta oczywiście mogą istnieć różnice, stąd też albo konieczna jest zmiana,
-albo mapowanie adresu, tj. na przykłąd przez plik *hosts*.
-Zalecanym jednak rozwiązaniem jest stworzenie profilu uruchomieniowego z 
-właściwym ustawieniem dla właściwości **spring.data.mongodb.host**.
-Przykład dla IntelliJ IDEA:
-
-![IntelliJ IDEA, konfiguracja dla hosta MongoDB](https://user-images.githubusercontent.com/19805658/57193864-258b7f80-6f40-11e9-9cfd-e74c29ed5e4a.png "IntelliJ IDEA, konfiguracja dla hosta MongoDB")
 ## Api
 Api łączy się przez port *8080*, docelowo wszystkie operacje rest, które ma wykonywać admin kryją się pod adresem */api/admin*, oczywiście cała reszta, tudzież dla klienta bądź niezalogowanego użytkownika pod adresem */api*.
 Na potrzeby testów API od razu próbuje utworzyć konto administracyjne o loginie: admin oraz haśle: admin, ale tylko jeśli aktywny jest profil Springa **init**.
