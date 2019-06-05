@@ -11,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.services.BotService;
@@ -41,7 +42,7 @@ public class BotControllerTest {
     private UserService userService;
 
     @Mock
-    private Principal principal;
+    private PrincipalProvider principal;
 
     private ModelMapper realModelMapper = new ModelMapper();
 
