@@ -10,7 +10,7 @@ Aplikacja polega na integracji kilku API w jednym miejscu.
 ### Technologie
 Apliakcja tworzona jest w języku Java, obecnie stos technologiczny to:
 - Spring Framework,
-- MongoDB
+- H2
 
 ### Organizacja pracy
 Wszystkie zadania przydzielane są na platformie [PivotalTracker](https://www.pivotaltracker.com/projects/2336446/)
@@ -18,11 +18,7 @@ Komunikacja przebiega na [naszym Slacku](http://zzpj-2019.slack.com).
 
 # Instrukcje
 ## Baza danych
-Standardowo, dla testów, plik konfiguracyjny łączy się z podaną w :application.properties" baza danych.
-Konfiguracja połączenia:
-- Host: localhost
-- Port: 27017
-- Dane logowania: podstawowe, puste
+Baza danych została zmieniona w trkacie produkcji. Na potrzbeby pokazu zdecydowano, że użyjemy bazy danych **H2**. W razie konieczności pozwala na łatwą i bezbolesną zmianę na serwer zdalny.
 
 W przypadku adresu hosta oczywiście mogą istnieć różnice, stąd też albo konieczna jest zmiana,
 albo mapowanie adresu, tj. na przykłąd przez plik *hosts*.
