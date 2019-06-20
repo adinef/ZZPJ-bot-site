@@ -48,19 +48,19 @@ class UserServiceImplTest {
                 .builder()
                 .login("test")
                 .build();
-        when(userRepository.findById("test")).thenReturn(Optional.of(user));
+        when(userRepository.findByLogin("test")).thenReturn(Optional.of(user));
         Assertions.assertEquals("test", userService.findByLogin("test").getLogin());
     }
 
     @Test
     void findByLoginShouldThrowRightExceptionAfterDatabaseRuntimeException() {
-        when(userRepository.findById(anyString())).thenThrow(RuntimeException.class);
+        when(userRepository.findByLogin(anyString())).thenThrow(RuntimeException.class);
         Assertions.assertThrows(UserRetrievalException.class, () -> userService.findByLogin("test"));
     }
 
     @Test
     void findByLoginShouldThrowRightExceptionWhenUserEmpty() {
-        when(userRepository.findById(anyString())).thenReturn(Optional.empty());
+        when(userRepository.findByLogin(anyString())).thenReturn(Optional.empty());
         Assertions.assertThrows(UserRetrievalException.class, () -> userService.findByLogin("test"));
     }
 
@@ -70,13 +70,13 @@ class UserServiceImplTest {
                 .builder()
                 .login("test")
                 .build();
-        when(userRepository.findById("test")).thenReturn(Optional.of(user));
+        when(userRepository.findByLogin("test")).thenReturn(Optional.of(user));
         Assertions.assertEquals("test", userService.loadUserByUsername("test").getUsername());
     }
 
     @Test
     void loadUserByUsernameShouldReturnThrowsRightExceptionWhenUserNotFound() {
-        when(userRepository.findById("test")).thenReturn(Optional.empty());
+        when(userRepository.findByLogin("test")).thenReturn(Optional.empty());
         Assertions.assertThrows(UserRetrievalException.class, () -> userService.findByLogin("test"));
     }
 
@@ -103,7 +103,7 @@ class UserServiceImplTest {
                 .build();
 
         when(userRepository
-                .findById(user.getLogin()))
+                .findByLogin(user.getLogin()))
                 .thenReturn(Optional.of(user));
 
         Assertions.assertThrows(UsernameAlreadyExistsException.class,
@@ -148,7 +148,7 @@ class UserServiceImplTest {
                 .email("ValidEmail@hmail.com")
                 .build();
 
-        when(userRepository.findById(user.getLogin())).thenReturn(Optional.of(user));
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
 
         userService.updateUser(user);
         verify(userRepository).save(user);
@@ -163,7 +163,7 @@ class UserServiceImplTest {
                 .email("ValidEmail@hmail.com")
                 .build();
 
-        when(userRepository.findById(user.getLogin())).thenReturn(Optional.empty());
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.empty());
 
         Assertions.assertThrows(UserRetrievalException.class, () -> userService.updateUser(user));
     }

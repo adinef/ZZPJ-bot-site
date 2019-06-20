@@ -10,6 +10,7 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User  {
+public class User implements Serializable {
 
     @Id
     @GeneratedValue
@@ -28,10 +29,8 @@ public class User  {
     @Column(unique = true)
     private String login;
 
-    @NotBlank
     private String name;
 
-    @NotBlank
     private String lastName;
 
     @NotBlank
@@ -45,23 +44,18 @@ public class User  {
     @NotNull
     private boolean active = false;
 
-    @NotNull
     @ElementCollection
     private List<UserRole> roles = new ArrayList<>();
 
-    @NotNull
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Bot> bots;
 
-    @NotNull
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<UserTask> userTasks;
 
-    @NotNull
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<Message> messages;
 
-    @NotNull
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
     private List<VerificationTokenInfo> verificationTokenInfos;
 }

@@ -17,6 +17,8 @@ import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.events.OnUserRegistrationCompleteEvent;
+
+import java.time.LocalDateTime;
 import java.util.Calendar;
 
 @RestController
@@ -49,7 +51,7 @@ public class UserController {
     public void registerUser(@RequestBody UserRegistrationDto dto)
             throws UserAdditionException, UsernameAlreadyExistsException {
         User user = this.modelMapper.map(dto, User.class);
-        this.userService.addUser(user);
+        this.userService.registerUser(user);
         this.eventPublisher.publishEvent(new OnUserRegistrationCompleteEvent(user));
     }
 
@@ -63,7 +65,7 @@ public class UserController {
 
         VerificationTokenInfo tokenInfo = this.verificationTokenService.findVerificationTokenInfo(token);
 
-        if (tokenInfo.getExpirationDate().getTime() - Calendar.getInstance().getTime().getTime() <= 0) {
+        if (tokenInfo.getExpirationTime().isAfter(LocalDateTime.now())) {
             throw new ExpiredVerificationTokenException();
         }
 
