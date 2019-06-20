@@ -15,6 +15,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInf
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
+import pl.lodz.p.it.zzpj.botsite.utils.UUIDTokenGenerator;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -62,7 +63,7 @@ public class VerificationTokenServiceImplTest {
 
         VerificationTokenInfo tokenInfo = new VerificationTokenInfo(user, token);
 
-        when(userRepository.findById(user.getLogin())).thenReturn(Optional.of(user));
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
 
         this.verificationTokenService.saveToken(user, token);
 
@@ -80,7 +81,7 @@ public class VerificationTokenServiceImplTest {
                 .email("ValidEmail@hmail.com")
                 .build();
 
-        when(userRepository.findById(user.getLogin())).thenReturn(Optional.empty());
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.empty());
 
         Assertions.assertThrows(UserRetrievalException.class,
                 () -> verificationTokenService.saveToken(user, token));

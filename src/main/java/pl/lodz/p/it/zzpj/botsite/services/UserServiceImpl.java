@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
+import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
@@ -13,6 +14,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyE
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Service("mongoUserService")
@@ -34,7 +36,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     @Override
     public User findByLogin(String login) throws UserRetrievalException {
         try {
-            Optional<User> user = this.userRepository.findById(login);
+            Optional<User> user = this.userRepository.findByLogin(login);
             return user.orElseThrow(() -> new UserNotFoundException("User with that login not found."));
         } catch (final Exception e) {
             throw new UserRetrievalException("Could not retrieve user by login", e);
@@ -44,7 +46,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
 
     @Override
     public User addUser(User user) throws UsernameAlreadyExistsException, UserAdditionException {
-        if (!this.userRepository.findById(user.getLogin()).isPresent()) {
+        if (!this.userRepository.findByLogin(user.getLogin()).isPresent()) {
             try {
                 user.setPassword(
                         this.passwordEncoder.encode(user.getPassword())
@@ -71,6 +73,23 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     public void updateUser(User user) throws UserRetrievalException {
         this.findByLogin(user.getLogin());
         this.userRepository.save(user);
+    }
+
+    @Override
+    public User registerUser(User user) throws UsernameAlreadyExistsException, UserAdditionException {
+        if (!this.userRepository.findByLogin(user.getLogin()).isPresent()) {
+            try {
+                user.setPassword(
+                        this.passwordEncoder.encode(user.getPassword())
+                );
+                user.setRoles(Arrays.asList(UserRole.USER));
+                return this.userRepository.save(user);
+            } catch (final Exception e) {
+                throw new UserAdditionException("Could not add user.", e);
+            }
+        } else {
+            throw new UsernameAlreadyExistsException("Username is already taken");
+        }
     }
 
 }

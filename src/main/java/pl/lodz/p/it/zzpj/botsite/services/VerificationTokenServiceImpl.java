@@ -7,12 +7,13 @@ import pl.lodz.p.it.zzpj.botsite.entities.VerificationTokenInfo;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInfoNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
+import pl.lodz.p.it.zzpj.botsite.utils.TokenGenerator;
 
 @Service
 public class VerificationTokenServiceImpl implements VerificationTokenService {
 
-    private UserService userService;
-    private VerificationTokenRepository verificationTokenRepository;
+    private final UserService userService;
+    private final VerificationTokenRepository verificationTokenRepository;
 
     @Autowired
     public VerificationTokenServiceImpl(
@@ -25,9 +26,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     @Override
     public void saveToken(User user, String token) throws UserRetrievalException {
-
         userService.findByLogin(user.getLogin());
-
         this.verificationTokenRepository.save(new VerificationTokenInfo(
                 user,
                 token
