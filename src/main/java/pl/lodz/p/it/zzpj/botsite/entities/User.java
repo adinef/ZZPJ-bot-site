@@ -44,7 +44,7 @@ public class User implements Serializable {
     @NotNull
     private boolean active = false;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<UserRole> roles = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")

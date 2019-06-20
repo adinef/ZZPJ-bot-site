@@ -1,25 +1,19 @@
 package pl.lodz.p.it.zzpj.botsite.services;
 
-import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskStatusException;
 
-import java.time.DateTimeException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface UserTaskService {
     UserTask addUserTask(UserTask task) throws UserTaskIdAlreadyExistsException, UserTaskAdditionException;
     UserTask findById(Long id) throws UserTaskRetrievalException;
-    List<UserTask> getListOfUserTasksByUserId(String userId) throws UserTaskNotFoundException;
+    List<UserTask> getListOfUserTasksByUserId(Long userId) throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException;
     List<UserTask> getListOfUserTasksByBotId(Long botId) throws UserTaskNotFoundException;
-    UserTask updateDate(Long id, LocalDateTime newDateTime) throws UserTaskNotFoundException, DateTimeException, UserTaskUpdateException;
-    UserTask updateIsRepeatableStatus(Long id, boolean status) throws UserTaskStatusException;
-    UserTask updateIsDoneStatus(Long id, boolean status) throws UserTaskStatusException;
-    void sendMessage(String botId, String messageId);
+    UserTask update(UserTask userTask) throws UserTaskUpdateException;
 }

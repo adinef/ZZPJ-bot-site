@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
@@ -23,29 +24,29 @@ public class UserTaskController {
 
     private final ModelMapper modelMapper;
     private final UserTaskService userTaskService;
-    private final BotService botService;
 
     @Autowired
     public UserTaskController(ModelMapper modelMapper,
-                              UserTaskService userTaskService,
-                              BotService botService) {
+                              UserTaskService userTaskService) {
         this.modelMapper = modelMapper;
         this.userTaskService = userTaskService;
-        this.botService = botService;
     }
 
+    //SECURITY + GET ALL FOR USER
     @GetMapping(
             value = "all",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<UserTaskDTO> getAllByUserId(@RequestParam("userId") final String userId) throws UserTaskNotFoundException {
+    public List<UserTaskDTO> getAllByUserId(@RequestParam("userId") final Long userId)
+            throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
         List<UserTaskDTO> userTaskDTOs = new ArrayList<>();
         List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(userId);
         modelMapper.map(userTaskList, userTaskDTOs);
         return userTaskDTOs;
     }
 
+    // SECURITY
     @PostMapping(
             value = "addtask",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -56,14 +57,16 @@ public class UserTaskController {
         return modelMapper.map(addedUserTask, UserTaskDTO.class);
     }
 
-    @PostMapping(
+    // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
+    @PutMapping(
             value = "edit/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserTaskDTO editTask(@PathVariable String id, @RequestBody UserTaskDTO userTaskDTO) throws UserTaskNotFoundException, UserTaskUpdateException {
+    public UserTaskDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskDTO userTaskDTO) throws UserTaskUpdateException {
         UserTask userTask = this.modelMapper.map(userTaskDTO, UserTask.class);
-        UserTask editedUserTask = userTaskService.updateDate(userTask.getId(), LocalDateTime.now()); //TODO
-        return modelMapper.map(editedUserTask, UserTaskDTO.class);
+        userTask.setId(id);
+        UserTask updatedTask = this.userTaskService.update(userTask);
+        return modelMapper.map(updatedTask, UserTaskDTO.class);
     }
 }
