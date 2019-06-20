@@ -33,6 +33,7 @@ public class RestResponseEntityExceptionHandler{
                 new Error(resp, ex), HttpStatus.NOT_FOUND, httpHeaders
         );
     }
+
     @ExceptionHandler(value = {RetrievalTimeException.class})
     protected ResponseEntity<Error> handleCouldNotRetrieve(Exception ex, WebRequest request) {
         String resp = "Resource could not be retrieved.";

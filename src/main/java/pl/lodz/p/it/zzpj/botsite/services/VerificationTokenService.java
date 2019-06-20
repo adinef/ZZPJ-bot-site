@@ -7,5 +7,5 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalExcept
 
 public interface VerificationTokenService {
     VerificationTokenInfo findVerificationTokenInfo(String token) throws VerificationTokenInfoNotFoundException;
-    void saveToken(User user, String token) throws UserRetrievalException;
+    VerificationTokenInfo saveToken(User user, String token) throws UserRetrievalException;
 }

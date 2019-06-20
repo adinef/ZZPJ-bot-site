@@ -1,4 +1,4 @@
-package pl.lodz.p.it.zzpj.botsite.web.dto;
+package pl.lodz.p.it.zzpj.botsite.web.dto.bots;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class BotCreationDTO {
     String name;
-    String token;
     String channel;
 }

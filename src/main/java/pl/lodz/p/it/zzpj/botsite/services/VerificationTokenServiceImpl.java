@@ -25,9 +25,9 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     }
 
     @Override
-    public void saveToken(User user, String token) throws UserRetrievalException {
+    public VerificationTokenInfo saveToken(User user, String token) throws UserRetrievalException {
         userService.findByLogin(user.getLogin());
-        this.verificationTokenRepository.save(new VerificationTokenInfo(
+        return this.verificationTokenRepository.save(new VerificationTokenInfo(
                 user,
                 token
         ));

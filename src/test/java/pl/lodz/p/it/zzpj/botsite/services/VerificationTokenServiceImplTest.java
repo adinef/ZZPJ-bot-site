@@ -20,6 +20,7 @@ import pl.lodz.p.it.zzpj.botsite.utils.UUIDTokenGenerator;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,13 +62,11 @@ public class VerificationTokenServiceImplTest {
                 .email("ValidEmail@hmail.com")
                 .build();
 
-        VerificationTokenInfo tokenInfo = new VerificationTokenInfo(user, token);
-
+        VerificationTokenInfo expectedTokenInfo = new VerificationTokenInfo(user, token);
         when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
-
-        this.verificationTokenService.saveToken(user, token);
-
-        verify(verificationTokenRepository).save(tokenInfo);
+        when(verificationTokenRepository.save(any())).thenReturn(expectedTokenInfo);
+        VerificationTokenInfo savedTokenInfo = this.verificationTokenService.saveToken(user, token);
+        Assertions.assertEquals(expectedTokenInfo, savedTokenInfo);
     }
 
     @Test

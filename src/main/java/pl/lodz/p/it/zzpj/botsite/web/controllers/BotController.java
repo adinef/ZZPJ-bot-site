@@ -8,14 +8,17 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
-import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
+import pl.lodz.p.it.zzpj.botsite.web.dto.bots.BotCreationDTO;
+import pl.lodz.p.it.zzpj.botsite.web.dto.bots.BotViewDTO;
 
-import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/bot")
@@ -35,6 +38,8 @@ public class BotController {
         this.userService = userService;
     }
 
+
+    // HAS TO BE SECURED
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -48,4 +53,22 @@ public class BotController {
         return this.modelMapper.map(addedBot, BotCreationDTO.class);
     }
 
+
+    // HAS TO BE SECURED (GET USER BY PRINCIPAL)
+    @GetMapping(
+            value = "user/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public List<BotViewDTO> getAllBotsForUser(@PathVariable("id") Long id) throws BotRetrievalException {
+        List<Bot> bots = this.botService.findAllForUserId(id);
+        return mapList(bots);
+    }
+
+
+    private List<BotViewDTO> mapList(List<Bot> bots) {
+        List<BotViewDTO> dtoList = new ArrayList<>();
+        bots.forEach( b -> this.modelMapper.map(b, BotViewDTO.class));
+        return dtoList;
+    }
 }

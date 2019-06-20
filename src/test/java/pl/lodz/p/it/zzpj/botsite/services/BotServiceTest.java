@@ -8,13 +8,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
+import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.BotDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.repositories.BotRepository;
+import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -31,9 +36,12 @@ class BotServiceTest {
     @Mock
     private BotRepository botRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
     @BeforeEach
     public void setup() {
-        this.botService = new BotServiceImpl(botRepository);
+        this.botService = new BotServiceImpl(botRepository, userRepository);
     }
 
     @Test
@@ -55,6 +63,36 @@ class BotServiceTest {
         when(botRepository.findById(any())).thenReturn(Optional.empty());
         Assertions.assertThrows(BotRetrievalException.class, () -> botService.findById(1L));
     }
+//
+    @Test
+    void findByUserIdShouldReturnEntityWhenExpected() throws BotRetrievalException {
+        Long botId = 0L;
+        Bot bot = Bot.builder().id(botId).name("FirstBot").channel("FirstChannel").build();
+        User user = User.builder().id(1L).build();
+        when(botRepository.findAllByUser(user)).thenReturn(Collections.singletonList(bot));
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        Assertions.assertFalse(botService.findAllForUserId(1L).isEmpty());
+    }
+
+    @Test
+    void findByUserIdShouldThrowRightExceptionAfterDatabaseRuntimeException() {
+        when(botRepository.findById(any())).thenThrow(RuntimeException.class);
+        Assertions.assertThrows(BotRetrievalException.class, () -> botService.findById(1L));
+    }
+
+    @Test
+    void findByUserIdShouldThrowRightExceptionWhenUserNotFound() {
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+        Assertions.assertThrows(BotRetrievalException.class, () -> botService.findAllForUserId(1L));
+    }
+
+    @Test
+    void findByUserIdShouldThrowRightExceptionWhenNoBotsFound() {
+        when(userRepository.findById(any())).thenReturn(Optional.of(new User()));
+        when(botRepository.findAllByUser(any())).thenReturn(Collections.emptyList());
+        Assertions.assertThrows(BotRetrievalException.class, () -> botService.findAllForUserId(1L));
+    }
+
 
     @Test
     void addBotShouldAddBot() throws BotAlreadyExistsException, BotAdditionException {
