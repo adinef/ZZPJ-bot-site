@@ -25,9 +25,6 @@ public class Bot {
     private String name;
 
     @NotBlank
-    private String token;
-
-    @NotBlank
     private String channel;
 
     @ManyToOne

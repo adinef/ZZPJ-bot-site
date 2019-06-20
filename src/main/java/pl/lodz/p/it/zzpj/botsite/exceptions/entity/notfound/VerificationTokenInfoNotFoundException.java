@@ -1,6 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound;
 
-public class VerificationTokenInfoNotFoundException extends Exception {
+public class VerificationTokenInfoNotFoundException extends NotFoundException {
     public VerificationTokenInfoNotFoundException() {
     }
 

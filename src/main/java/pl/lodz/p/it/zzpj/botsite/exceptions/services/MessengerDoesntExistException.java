@@ -1,6 +1,8 @@
-package pl.lodz.p.it.zzpj.botsite.botservices.exception;
+package pl.lodz.p.it.zzpj.botsite.exceptions.services;
 
-public class MessengerDoesntExistException extends Exception{
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.NotFoundException;
+
+public class MessengerDoesntExistException extends NotFoundException {
     public MessengerDoesntExistException() {
     }
 

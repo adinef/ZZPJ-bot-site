@@ -39,7 +39,7 @@ class BotServiceTest {
     @Test
     void findByIdShouldReturnEntityWhenExpected() throws BotRetrievalException {
         Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         when(botRepository.findById(id)).thenReturn(Optional.of(bot));
         Assertions.assertEquals("FirstBot", botService.findById(id).getName());
     }
@@ -58,21 +58,21 @@ class BotServiceTest {
 
     @Test
     void addBotShouldAddBot() throws BotAlreadyExistsException, BotAdditionException {
-        Bot bot = Bot.builder().name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().name("FirstBot").channel("FirstChannel").build();
         botService.addBot(bot);
         verify(botRepository).save(bot);
     }
 
     @Test
     void addBotShouldThrowBotAlreadyExistsException(){
-        Bot bot = Bot.builder().id(1L).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().id(1L).name("FirstBot").channel("FirstChannel").build();
         Assertions.assertThrows(BotAdditionException.class, () -> botService.addBot(bot));
     }
 
     @Test
     void updateBotNameShouldUpdateBotName() throws BotRetrievalException, BotNotFoundException {
         Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         when(botRepository.findById(id)).thenReturn(Optional.of(bot));
         botService.updateBotName(id,"NewName");
         Assertions.assertEquals(bot.getName(), "NewName");
@@ -81,30 +81,14 @@ class BotServiceTest {
     @Test
     void updateBotNameShouldThrowBotNotFoundException(){
         Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         Assertions.assertThrows(BotNotFoundException.class, () -> botService.updateBotName(id,"NewName"));
-    }
-
-    @Test
-    void updateBotTokenShouldUpdateBotToken() throws BotNotFoundException{
-        Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
-        when(botRepository.findById(id)).thenReturn(Optional.of(bot));
-        botService.updateBotToken(id,"NewToken");
-        Assertions.assertEquals(bot.getToken(), "NewToken");
-    }
-
-    @Test
-    void updateBotTokenShouldThrowBotNotFoundException(){
-        Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
-        Assertions.assertThrows(BotNotFoundException.class, () -> botService.updateBotToken(id,"NewToken"));
     }
 
     @Test
     void updateBotChannelShouldUpdateBotChannel() throws BotNotFoundException {
         Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         when(botRepository.findById(id)).thenReturn(Optional.of(bot));
         botService.updateBotChannel(id,"NewChannel");
         Assertions.assertEquals(bot.getChannel(), "NewChannel");
@@ -113,14 +97,14 @@ class BotServiceTest {
     @Test
     void updateBotChannelShouldThrowBotNotFoundException(){
         Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         Assertions.assertThrows(BotNotFoundException.class, () -> botService.updateBotChannel(id,"NewChannel"));
     }
 
     @Test
     void deleteBotShouldDeleteBot() throws BotNotFoundException, BotRetrievalException, BotDeletionException {
         Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         botService.deleteBot(id);
         verify(botRepository).deleteById(bot.getId());
     }

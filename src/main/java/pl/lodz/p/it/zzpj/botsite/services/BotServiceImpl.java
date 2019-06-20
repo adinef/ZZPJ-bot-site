@@ -59,18 +59,6 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public Bot updateBotToken(Long id, String token) throws BotNotFoundException {
-        try {
-            Optional<Bot> bot = this.botRepository.findById(id);
-            Bot botRetrieved = bot.orElseThrow(() -> new BotNotFoundException("Bot with that ID not found."));
-            botRetrieved.setToken(token);
-            return this.botRepository.save(botRetrieved);
-        } catch (final Exception e) {
-            throw new BotNotFoundException("Bot with that ID not found.", e);
-        }
-    }
-
-    @Override
     public Bot updateBotChannel(Long id, String channel) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);

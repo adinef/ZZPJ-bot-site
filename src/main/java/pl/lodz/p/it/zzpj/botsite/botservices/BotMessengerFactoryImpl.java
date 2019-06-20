@@ -3,7 +3,7 @@ package pl.lodz.p.it.zzpj.botsite.botservices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import pl.lodz.p.it.zzpj.botsite.botservices.exception.MessengerDoesntExistException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.services.MessengerDoesntExistException;
 import pl.lodz.p.it.zzpj.botsite.botservices.messengers.BotMessenger;
 import pl.lodz.p.it.zzpj.botsite.botservices.messengers.DiscordMessenger;
 import pl.lodz.p.it.zzpj.botsite.botservices.messengers.SlackMessenger;

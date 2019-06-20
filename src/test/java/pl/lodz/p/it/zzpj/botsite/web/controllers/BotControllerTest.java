@@ -57,7 +57,7 @@ public class BotControllerTest {
     public void createBotShouldWorkAsExpected() throws Exception {
 
         Long id = 0L;
-        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").token("FirstToken").build();
+        Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         BotCreationDTO dto = this.realModelMapper.map(bot, BotCreationDTO.class);
         String json = gson.toJson(dto);
 
