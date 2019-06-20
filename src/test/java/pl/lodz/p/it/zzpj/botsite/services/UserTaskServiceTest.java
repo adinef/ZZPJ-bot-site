@@ -14,6 +14,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlread
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskStatusException;
+import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
 import java.time.DateTimeException;
@@ -34,10 +35,13 @@ class UserTaskServiceTest {
     @Mock
     private UserTaskRepository userTaskRepository;
 
+    @Mock
+    private UserRepository userRepository;
+
 
     @BeforeEach
     void setup() {
-        this.userTaskService = new UserTaskServiceImpl(userTaskRepository);
+        this.userTaskService = new UserTaskServiceImpl(userTaskRepository, userRepository);
     }
 
     @Test
@@ -81,18 +85,26 @@ class UserTaskServiceTest {
     }
 
     @Test
-    void updateDateShouldChangeTaskDate() throws DateTimeException, UserTaskNotFoundException, UserTaskIdAlreadyExistsException, UserTaskUpdateException {
-        LocalDateTime today = LocalDateTime.now();
+    void updateShouldProceedWithUpdate() throws UserTaskUpdateException {
         UserTask task = UserTask
                 .builder()
                 .id(1L)
-                .reminderDate(today)
+                .reminderDate(LocalDateTime.now().plusDays(1))
                 .build();
-        when(userTaskRepository
-                .findById(task.getId())
-        ).thenReturn(Optional.of(task));
-        userTaskService.updateDate(task.getId(), today.plusDays(1));
-        Assertions.assertEquals(today.plusDays(1), task.getReminderDate());
+        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
+        when(userTaskRepository.save(task)).thenReturn(task);
+        Assertions.assertEquals(task, userTaskService.update(task));
+    }
+
+    @Test
+    void updateShouldThrowWhenTaskByIdNotFound() {
+        UserTask task = UserTask
+                .builder()
+                .id(1L)
+                .reminderDate(LocalDateTime.now().plusDays(1))
+                .build();
+        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.empty());
+        Assertions.assertThrows(UserTaskUpdateException.class, () -> userTaskService.update(task));
     }
 
     @Test
@@ -101,36 +113,8 @@ class UserTaskServiceTest {
         UserTask task = UserTask
                 .builder()
                 .id(1L)
-                .reminderDate(today)
+                .reminderDate(today.minusDays(1))
                 .build();
-        Assertions.assertThrows(DateTimeException.class, () -> userTaskService.updateDate(task.getId(), today.minusDays(1)));
-    }
-
-    @Test
-    void updateIsRepeatableStatusShouldUpdateTaskStatus() throws UserTaskStatusException {
-        UserTask task = UserTask
-                .builder()
-                .id(1L)
-                .isRepeatable(true)
-                .build();
-        when(userTaskRepository
-                .findById(task.getId())
-        ).thenReturn(Optional.of(task));
-        userTaskService.updateIsRepeatableStatus(task.getId(), false);
-        Assertions.assertFalse(task.isRepeatable());
-    }
-
-    @Test
-    void updateIsDoneStatusShouldUpdateTaskStatus() throws UserTaskStatusException {
-        UserTask task = UserTask
-                .builder()
-                .id(1L)
-                .isDone(false)
-                .build();
-        when(userTaskRepository
-                .findById(task.getId())
-        ).thenReturn(Optional.of(task));
-        userTaskService.updateIsDoneStatus(task.getId(), true);
-        Assertions.assertTrue(task.isDone());
+        Assertions.assertThrows(DateTimeException.class, () -> userTaskService.update(task));
     }
 }

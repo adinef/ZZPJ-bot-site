@@ -2,14 +2,14 @@ package pl.lodz.p.it.zzpj.botsite.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.lodz.p.it.zzpj.botsite.entities.Message;
+import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskStatusException;
+import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
 import java.time.DateTimeException;
@@ -22,10 +22,12 @@ import java.util.Optional;
 public class UserTaskServiceImpl implements UserTaskService {
 
     private final UserTaskRepository userTaskRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserTaskServiceImpl(UserTaskRepository userTaskRepository) {
+    public UserTaskServiceImpl(UserTaskRepository userTaskRepository, UserRepository userRepository) {
         this.userTaskRepository = userTaskRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -50,10 +52,14 @@ public class UserTaskServiceImpl implements UserTaskService {
         }
     }
 
-    //TODO Need to decide if it is necessary
     @Override
-    public List<UserTask> getListOfUserTasksByUserId(String userId) throws UserTaskNotFoundException {
-        return new ArrayList<>();
+    public List<UserTask> getListOfUserTasksByUserId(Long userId) throws UserNotFoundException, UserTaskUpdateException {
+        try {
+            User user = this.userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+            return this.userTaskRepository.findAllByUser(user);
+        } catch (final RuntimeException e) {
+            throw new UserTaskUpdateException("Task could not be updated.", e);
+        }
     }
 
     //TODO Need to decide if it is necessary
@@ -63,47 +69,16 @@ public class UserTaskServiceImpl implements UserTaskService {
     }
 
     @Override
-    public UserTask updateDate(Long id, LocalDateTime newDateTime) throws DateTimeException, UserTaskUpdateException {
-        if (newDateTime.isBefore(LocalDateTime.now())) {
+    public UserTask update(UserTask userTask) throws UserTaskUpdateException {
+        if (userTask.getReminderDate().isBefore(LocalDateTime.now())) {
             throw new DateTimeException("Cannot set reminder to this date");
         }
         try {
-            Optional<UserTask> task = this.userTaskRepository.findById(id);
-            UserTask userTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
-            userTask.setReminderDate(newDateTime);
+            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
+            task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
             return this.userTaskRepository.save(userTask);
         } catch (final Exception e) {
             throw new UserTaskUpdateException("Task could not be updated.", e);
         }
-    }
-
-    @Override
-    public UserTask updateIsRepeatableStatus(Long id, boolean status) throws UserTaskStatusException {
-        try {
-            Optional<UserTask> task = this.userTaskRepository.findById(id);
-            UserTask userTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
-            userTask.setRepeatable(status);
-            return this.userTaskRepository.save(userTask);
-        } catch (final Exception e) {
-            throw new UserTaskStatusException(String.format("Task for %s cannot be updated", id), e);
-        }
-    }
-
-    @Override
-    public UserTask updateIsDoneStatus(Long id, boolean status) throws UserTaskStatusException{
-        try {
-            Optional<UserTask> task = this.userTaskRepository.findById(id);
-            UserTask userTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
-            userTask.setDone(status);
-            return this.userTaskRepository.save(userTask);
-        } catch (final Exception e) {
-            throw new UserTaskStatusException(String.format("Task for %s cannot be updated", id), e);
-        }
-    }
-
-    //TODO Message implementation needed
-    @Override
-    public void sendMessage(String botId, String messageId) {
-
     }
 }
