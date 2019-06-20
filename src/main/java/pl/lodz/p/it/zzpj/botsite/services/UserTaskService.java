@@ -15,5 +15,5 @@ public interface UserTaskService {
     UserTask findById(Long id) throws UserTaskRetrievalException;
     List<UserTask> getListOfUserTasksByUserId(Long userId) throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException;
     List<UserTask> getListOfUserTasksByBotId(Long botId) throws UserTaskNotFoundException;
-    UserTask update(UserTask userTask) throws UserTaskUpdateException;
+    UserTask update(Long userId, UserTask userTask) throws UserTaskUpdateException;
 }

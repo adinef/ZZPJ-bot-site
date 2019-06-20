@@ -52,7 +52,7 @@ public class BotServiceImpl implements BotService {
             }
             return bots;
         } catch (final Exception e) {
-            throw new BotRetrievalException("Could not retrieve bot by user's ID", e);
+            throw new BotRetrievalException("Could not retrieve bot by user's ID");
         }
     }
 

@@ -12,9 +12,14 @@ import java.util.List;
 public interface MessageService {
 
     Message addMessage(Message message) throws MessageAdditionException;
-    List<Message> getAllByUserId(String userId) throws MessageRetrievalException;
+    List<Message> getAllByUserId(Long userId) throws MessageRetrievalException;
+
+    List<Message> getSingleMessageForUserById(Long userId, Long messageId) throws MessageRetrievalException;
+
     Message findById(Long id) throws MessageRetrievalException;
-    Message updateMessage(Long id, String content) throws MessageNotFoundException;
+
+    Message updateMessage(Long userId, Long id, String content) throws MessageNotFoundException;
+
     void deleteMessage(Long id) throws MessageDeletionException;
 
 }

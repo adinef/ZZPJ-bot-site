@@ -4,7 +4,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
@@ -14,6 +16,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateExceptio
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.UserTaskService;
+import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserTaskDTO;
 
 import java.time.LocalDateTime;
@@ -28,16 +31,32 @@ public class UserTaskController {
 
     private final ModelMapper modelMapper;
     private final UserTaskService userTaskService;
+    private final PrincipalProvider principalProvider;
 
     @Autowired
     public UserTaskController(ModelMapper modelMapper,
-                              UserTaskService userTaskService) {
+                              UserTaskService userTaskService,
+                              PrincipalProvider principalProvider) {
         this.modelMapper = modelMapper;
         this.userTaskService = userTaskService;
+        this.principalProvider = principalProvider;
     }
 
     //SECURITY + GET ALL FOR USER
     @Secured("ROLE_USER")
+    @GetMapping(
+            value = "user/{userId}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public List<UserTaskDTO> getAllTaskForCurrentUser()
+            throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
+        List<UserTaskDTO> userTaskDTOs = new ArrayList<>();
+        List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(principalProvider.getUserId());
+        modelMapper.map(userTaskList, userTaskDTOs);
+        return userTaskDTOs;
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -58,6 +77,7 @@ public class UserTaskController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public UserTaskDTO addTask(@RequestBody UserTaskDTO userTaskDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
         UserTask userTask = this.modelMapper.map(userTaskDTO, UserTask.class);
+        userTask.setUser(((MyUserDetails)principalProvider.getPrincipal()).getUser());
         UserTask addedUserTask = userTaskService.addUserTask(userTask);
         return modelMapper.map(addedUserTask, UserTaskDTO.class);
     }
@@ -72,7 +92,7 @@ public class UserTaskController {
     public UserTaskDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskDTO userTaskDTO) throws UserTaskUpdateException {
         UserTask userTask = this.modelMapper.map(userTaskDTO, UserTask.class);
         userTask.setId(id);
-        UserTask updatedTask = this.userTaskService.update(userTask);
+        UserTask updatedTask = this.userTaskService.update(principalProvider.getUserId(), userTask);
         return modelMapper.map(updatedTask, UserTaskDTO.class);
     }
 }
