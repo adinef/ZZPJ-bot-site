@@ -45,7 +45,7 @@ public class UserTaskController {
     //SECURITY + GET ALL FOR USER
     @Secured("ROLE_USER")
     @GetMapping(
-            value = "user/{userId}",
+            value = "",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public List<UserTaskDTO> getAllTaskForCurrentUser()
@@ -92,6 +92,7 @@ public class UserTaskController {
     public UserTaskDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskDTO userTaskDTO) throws UserTaskUpdateException {
         UserTask userTask = this.modelMapper.map(userTaskDTO, UserTask.class);
         userTask.setId(id);
+        userTask.setUser(((MyUserDetails)principalProvider.getPrincipal()).getUser());
         UserTask updatedTask = this.userTaskService.update(principalProvider.getUserId(), userTask);
         return modelMapper.map(updatedTask, UserTaskDTO.class);
     }
