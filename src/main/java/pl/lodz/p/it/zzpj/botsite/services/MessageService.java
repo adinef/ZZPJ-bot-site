@@ -20,6 +20,6 @@ public interface MessageService {
 
     Message updateMessage(Long userId, Long id, String content) throws MessageNotFoundException;
 
-    void deleteMessage(Long id) throws MessageDeletionException;
+    void deleteMessage(Long userId, Long id) throws MessageDeletionException;
 
 }

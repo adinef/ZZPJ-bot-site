@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.MessageDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
@@ -70,5 +71,14 @@ public class MessageController {
     public MessageDTO editMessage(@PathVariable Long id, @RequestBody MessageDTO messageDto) throws MessageNotFoundException {
         Message editedMessage = messageService.updateMessage(principalProvider.getUserId(), id, messageDto.getContent());
         return modelMapper.map(editedMessage, MessageDTO.class);
+    }
+
+    @Secured("ROLE_USER")
+    @DeleteMapping(
+            value = "{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public void deleteMessage(@PathVariable Long id, @RequestBody MessageDTO messageDto) throws MessageDeletionException {
+        messageService.deleteMessage(principalProvider.getUserId(), id);
     }
 }

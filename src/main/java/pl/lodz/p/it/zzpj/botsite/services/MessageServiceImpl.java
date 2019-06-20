@@ -83,7 +83,7 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void deleteMessage(Long id) throws MessageDeletionException {
+    public void deleteMessage(Long userId, Long id) throws MessageDeletionException {
         try {
             this.messageRepository.deleteById(id);
         } catch (final Exception e) {

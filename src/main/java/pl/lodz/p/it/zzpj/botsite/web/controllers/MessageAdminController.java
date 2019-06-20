@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.MessageDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
@@ -25,15 +26,12 @@ public class MessageAdminController {
 
     private final ModelMapper modelMapper;
     private final MessageService messageService;
-    private final PrincipalProvider principalProvider;
 
     @Autowired
     public MessageAdminController(ModelMapper modelMapper,
-                                  MessageService messageService,
-                                  PrincipalProvider principalProvider) {
+                                  MessageService messageService) {
         this.modelMapper = modelMapper;
         this.messageService = messageService;
-        this.principalProvider = principalProvider;
     }
 
 
@@ -74,5 +72,15 @@ public class MessageAdminController {
                                          @RequestBody MessageDTO messageDto) throws MessageNotFoundException {
         Message editedMessage = messageService.updateMessage(userId, messageId, messageDto.getContent());
         return modelMapper.map(editedMessage, MessageDTO.class);
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @DeleteMapping(
+            value = "user/{userId}/message/{messageId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public void deleteMessageForUser(@PathVariable("userId") Long userId, @PathVariable("messageId") Long messageId,
+                                         @RequestBody MessageDTO messageDto) throws MessageDeletionException {
+        messageService.deleteMessage(userId, messageId);
     }
 }
