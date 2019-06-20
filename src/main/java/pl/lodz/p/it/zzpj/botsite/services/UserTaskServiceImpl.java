@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Service("mongoUserTaskService")
+@Service("userTaskService")
 public class UserTaskServiceImpl implements UserTaskService {
 
     private final UserTaskRepository userTaskRepository;
@@ -61,6 +61,7 @@ public class UserTaskServiceImpl implements UserTaskService {
             throw new UserTaskUpdateException("Task could not be updated.", e);
         }
     }
+
 
     @Override
     public UserTask update(UserTask userTask) throws UserTaskUpdateException {

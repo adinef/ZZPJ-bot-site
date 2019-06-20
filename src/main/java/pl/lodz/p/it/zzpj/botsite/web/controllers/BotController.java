@@ -19,12 +19,10 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
-import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import pl.lodz.p.it.zzpj.botsite.web.dto.bots.BotCreationDTO;
 import pl.lodz.p.it.zzpj.botsite.web.dto.bots.BotEditDTO;
 import pl.lodz.p.it.zzpj.botsite.web.dto.bots.BotViewDTO;
 
-import javax.print.attribute.standard.Media;
 import java.util.ArrayList;
 import java.util.List;
 

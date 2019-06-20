@@ -1,4 +1,4 @@
-package pl.lodz.p.it.zzpj.botsite.web.dto;
+package pl.lodz.p.it.zzpj.botsite.web.dto.users;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserRegistrationDto {
+public class UserActivationDto {
     private String login;
     private String email;
-    private String password;
 }

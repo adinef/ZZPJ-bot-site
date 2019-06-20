@@ -1,4 +1,4 @@
-package pl.lodz.p.it.zzpj.botsite.web.dto;
+package pl.lodz.p.it.zzpj.botsite.web.dto.users;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

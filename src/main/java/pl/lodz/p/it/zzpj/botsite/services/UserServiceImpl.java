@@ -14,7 +14,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
-import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
+import pl.lodz.p.it.zzpj.botsite.web.dto.users.MyUserDetails;
 
 import java.util.Arrays;
 import java.util.Optional;

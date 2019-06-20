@@ -7,6 +7,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
+import pl.lodz.p.it.zzpj.botsite.web.dto.users.MyUserDetails;
 
 import java.util.Arrays;
 import java.util.Collection;
