@@ -3,7 +3,6 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,8 +22,8 @@ import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.StatusDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserAccountDataDto;
-import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserUpdateDto;
+import pl.lodz.p.it.zzpj.botsite.web.dto.users.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.events.OnUserRegistrationCompleteEvent;
 
 import java.time.LocalDateTime;

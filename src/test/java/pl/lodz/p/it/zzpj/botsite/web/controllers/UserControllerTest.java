@@ -18,8 +18,8 @@ import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserAccountDataDto;
-import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserUpdateDto;
+import pl.lodz.p.it.zzpj.botsite.web.dto.users.UserRegistrationDto;
 
 import java.util.ArrayList;
 

@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class UserTask {
-
     @Id
     @GeneratedValue
     private Long id;
@@ -32,18 +31,22 @@ public class UserTask {
     @NotNull
     @ManyToOne
     private User user;
+
     /**
      * Date of task creation
      */
     @NotNull
     private LocalDateTime creationDate;
+
     /**
      * Date of reminder/sending message
      */
     @NotNull
     private LocalDateTime reminderDate;
+
     @NotNull
     private boolean isRepeatable;
+
     @NotNull
     private boolean isDone;
 }

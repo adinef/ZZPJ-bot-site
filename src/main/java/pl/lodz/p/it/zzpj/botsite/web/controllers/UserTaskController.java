@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
@@ -20,7 +21,6 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateExceptio
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.UserTaskService;
-import pl.lodz.p.it.zzpj.botsite.web.dto.usertasks.UserTaskAdminDTO;
 import pl.lodz.p.it.zzpj.botsite.web.dto.usertasks.UserTaskUserDTO;
 
 import java.util.ArrayList;
@@ -47,23 +47,22 @@ public class UserTaskController {
     }
 
     //SECURITY + GET ALL FOR USER
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<UserTaskUserDTO> getAllByUserId(@PathVariable("userId") final Long userId)
-            throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException, UserRetrievalException, UserTaskRetrievalException {
-        User user = this.userService.findByLogin(this.principalProvider.getName());
-        if (!user.getId().equals(userId)) {
-            throw new UserTaskRetrievalException("Can not get User Tasks");
-        }
-        List<UserTask> userTaskList = this.userTaskService.getListOfUserTasksByUserId(userId);
-        return mapList(userTaskList);
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserTaskUserDTO> getAllTaskForCurrentUser()
+            throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
+        List<UserTaskUserDTO> userTaskDTOs = new ArrayList<>();
+        List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(principalProvider.getUserId());
+        modelMapper.map(userTaskList, userTaskDTOs);
+        return userTaskDTOs;
     }
 
     //SECURITY + GET SINGLE TASK
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -79,7 +78,7 @@ public class UserTaskController {
     }
 
     // SECURITY
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -93,7 +92,8 @@ public class UserTaskController {
     }
 
     // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
-    @Secured("ROLE_USER")
+    //TODO
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping(
             value = "edit/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
