@@ -12,4 +12,8 @@ public enum UserRole {
     public String getRoleName() {
         return roleName;
     }
+
+    public static String SECURITY_ROLE(UserRole userRole) {
+        return "ROLE_" + userRole.roleName;
+    }
 }
