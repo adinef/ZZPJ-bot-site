@@ -8,13 +8,17 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.VerificationTokenInfo;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.NotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInfoNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.RetrievalTimeException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.ExpiredVerificationTokenException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.StateNotConsistentException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
+import pl.lodz.p.it.zzpj.botsite.web.dto.StatusDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.events.OnUserRegistrationCompleteEvent;
 
@@ -57,21 +61,16 @@ public class UserController {
 
     @GetMapping(
             value = "activate",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public void activateUser(@RequestParam String token) throws VerificationTokenInfoNotFoundException,
-            ExpiredVerificationTokenException, UserRetrievalException {
-
+    public StatusDto activateUser(@RequestParam String token)
+            throws StateNotConsistentException, RetrievalTimeException, NotFoundException {
         VerificationTokenInfo tokenInfo = this.verificationTokenService.findVerificationTokenInfo(token);
-
         if (tokenInfo.getExpirationTime().isAfter(LocalDateTime.now())) {
             throw new ExpiredVerificationTokenException();
         }
-
         User user = tokenInfo.getUser();
-
         this.userService.updateUser(user);
-
+        return new StatusDto("Successfully activated");
     }
 }

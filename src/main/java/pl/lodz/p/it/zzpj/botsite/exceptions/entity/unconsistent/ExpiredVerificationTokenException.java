@@ -1,6 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent;
 
-public class ExpiredVerificationTokenException extends Exception {
+public class ExpiredVerificationTokenException extends StateNotConsistentException {
 
     public ExpiredVerificationTokenException() {
     }

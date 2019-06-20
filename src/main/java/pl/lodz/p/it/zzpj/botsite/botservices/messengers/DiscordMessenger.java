@@ -17,8 +17,7 @@ public class DiscordMessenger extends AbstractBotMessengerBase {
 
     @Override
     public void sendMessage(Message message) {
-        String token = bot.getToken();
-        this.post(bot.getChannel(), new DiscordMessage(message.getContent(), token));
+        this.post(bot.getChannel(), new DiscordMessage(message.getContent(), bot.getName()));
     }
 
     private class DiscordMessage {
