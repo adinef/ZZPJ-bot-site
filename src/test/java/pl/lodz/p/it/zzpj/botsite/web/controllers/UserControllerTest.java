@@ -53,27 +53,21 @@ public class UserControllerTest {
 
     @Test
     public void registerUserShouldWorkAsExpected() throws Exception {
-
         User user = User.builder()
                 .login("Login")
                 .password("Password")
                 .email("e123@email.ioio")
                 .build();
         UserRegistrationDto dto = realModelMapper.map(user, UserRegistrationDto.class);
-
         when(modelMapper.map(dto, User.class)).thenReturn(user);
-        when(userService.addUser(any())).thenReturn(user);
-
+        when(userService.registerUser(any())).thenReturn(user);
         String json = gson.toJson(dto);
-
         mockMvc.perform(
                 post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
         ).andExpect(status().isOk());
-
-        verify(userService).addUser(any(User.class));
-
+        verify(userService).registerUser(any(User.class));
     }
 
 }

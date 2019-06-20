@@ -16,7 +16,7 @@ import pl.lodz.p.it.zzpj.botsite.entities.Bot;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
-import pl.lodz.p.it.zzpj.botsite.web.dto.BotCreationDTO;
+import pl.lodz.p.it.zzpj.botsite.web.dto.bots.BotCreationDTO;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

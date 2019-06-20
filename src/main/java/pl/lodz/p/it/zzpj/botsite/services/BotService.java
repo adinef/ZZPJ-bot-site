@@ -7,10 +7,13 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExists
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
 
+import java.util.List;
+
 public interface BotService {
     Bot findById(Long id) throws BotRetrievalException;
     Bot addBot(Bot bot) throws BotAlreadyExistsException, BotAdditionException;
     Bot updateBotName(Long id, String name) throws BotNotFoundException;
     Bot updateBotChannel(Long id, String channel) throws BotNotFoundException;
     void deleteBot(Long id) throws BotNotFoundException, BotRetrievalException, BotDeletionException;
+    List<Bot> findAllForUserId(Long id) throws BotRetrievalException;
 }

@@ -3,22 +3,28 @@ package pl.lodz.p.it.zzpj.botsite.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
+import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.BotDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotAdditionException;
 import pl.lodz.p.it.zzpj.botsite.repositories.BotRepository;
+import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service("mongoBotService")
 public class BotServiceImpl implements BotService {
 
     private final BotRepository botRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public BotServiceImpl(BotRepository botRepository) {
+    public BotServiceImpl(BotRepository botRepository, UserRepository userRepository) {
         this.botRepository = botRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -31,6 +37,22 @@ public class BotServiceImpl implements BotService {
                     );
         } catch (final Exception e) {
             throw new BotRetrievalException("Could not retrieve bot by ID", e);
+        }
+    }
+
+
+    @Override
+    public List<Bot> findAllForUserId(Long id) throws BotRetrievalException {
+        try {
+            Optional<User> userById = this.userRepository.findById(id);
+            User user = userById.orElseThrow(UserNotFoundException::new);
+            List<Bot> bots = this.botRepository.findAllByUser(user);
+            if (bots == null || bots.isEmpty()) {
+                throw new BotNotFoundException("Bot for that user not found.");
+            }
+            return bots;
+        } catch (final Exception e) {
+            throw new BotRetrievalException("Could not retrieve bot by user's ID", e);
         }
     }
 
