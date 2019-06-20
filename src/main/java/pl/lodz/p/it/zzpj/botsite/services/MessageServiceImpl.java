@@ -11,6 +11,7 @@ import pl.lodz.p.it.zzpj.botsite.repositories.MessageRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service("mongoMessageService")
 public class MessageServiceImpl implements MessageService {
@@ -35,11 +36,21 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<Message> getAllByUserId(String userId) throws MessageRetrievalException {
+    public List<Message> getAllByUserId(Long id) throws MessageRetrievalException {
         try {
-            return this.messageRepository.findByUserId(userId);
+            return this.messageRepository.findByUserId(id);
         } catch (final Exception e) {
             throw new MessageRetrievalException("Could not retrieve list of messages by user ID", e);
+        }
+    }
+
+    @Override
+    public List<Message> getSingleMessageForUserById(Long userId, Long messageId) throws MessageRetrievalException {
+        try {
+            List<Message> messages = this.messageRepository.findByUserId(userId);
+            return messages.stream().filter(m -> m.getId().equals(messageId)).collect(Collectors.toList());
+        } catch (final Exception e) {
+            throw new MessageRetrievalException("Message with given ID doesn't exist for this user", e);
         }
     }
 
@@ -57,9 +68,12 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Message updateMessage(Long id, String content) throws MessageNotFoundException {
+    public Message updateMessage(Long userId, Long id, String content) throws MessageNotFoundException {
         try {
             Optional<Message> message = this.messageRepository.findById(id);
+            if (!message.get().getUser().getId().equals(userId)) {
+                throw new MessageNotFoundException("Message with that ID not found");
+            }
             Message messageRetrieved = message.orElseThrow(() -> new MessageNotFoundException("Message with that ID not found."));
             messageRetrieved.setContent(content);
             return this.messageRepository.save(messageRetrieved);

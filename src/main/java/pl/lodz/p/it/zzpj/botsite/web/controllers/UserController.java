@@ -35,7 +35,6 @@ public class UserController {
 
     private final ModelMapper modelMapper;
     private final UserService userService;
-
     private final VerificationTokenService verificationTokenService;
     private final ApplicationEventPublisher eventPublisher;
 

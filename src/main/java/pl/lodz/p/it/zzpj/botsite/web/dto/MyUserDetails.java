@@ -1,5 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.web.dto;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,7 @@ import pl.lodz.p.it.zzpj.botsite.entities.User;
 import java.util.Collection;
 
 public class MyUserDetails implements UserDetails {
+    @Getter
     private final User user;
 
     private MyUserDetails(User user) {
@@ -58,4 +60,6 @@ public class MyUserDetails implements UserDetails {
     public boolean isEnabled() {
         return user.isActive();
     }
+
+    public Long getId() { return user.getId(); }
 }

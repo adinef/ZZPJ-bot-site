@@ -25,43 +25,25 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/bot")
 @Slf4j
-public class BotController {
+public class BotAdminController {
 
     private final ModelMapper modelMapper;
     private final BotService botService;
-    private final PrincipalProvider principalProvider;
-    private final UserService userService;
 
     @Autowired
-    public BotController(ModelMapper modelMapper, BotService botService, PrincipalProvider principalProvider, UserService userService) {
+    public BotAdminController(ModelMapper modelMapper, BotService botService) {
         this.modelMapper = modelMapper;
         this.botService = botService;
-        this.principalProvider = principalProvider;
-        this.userService = userService;
     }
 
-    @Secured("ROLE_USER")
-    @PostMapping(
-            value = "",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @GetMapping(
+            value = "user/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public BotCreationDTO createBot(@RequestBody BotCreationDTO dto) throws BotAlreadyExistsException, BotAdditionException, UserRetrievalException {
-        Bot bot = this.modelMapper.map(dto, Bot.class);
-        bot.setUser(userService.findByLogin(principalProvider.getName()));
-        Bot addedBot = this.botService.addBot(bot);
-        return this.modelMapper.map(addedBot, BotCreationDTO.class);
-    }
-
-    @Secured("ROLE_USER")
-    @GetMapping (
-            value = "",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @ResponseStatus(HttpStatus.OK)
-    public List<BotViewDTO> getAllBotsForCurrentUser() throws BotRetrievalException {
-        List<Bot> bots = this.botService.findAllForUserId(principalProvider.getUserId());
+    public List<BotViewDTO> getAllBotsForUser(@PathVariable("id") Long id) throws BotRetrievalException {
+        List<Bot> bots = this.botService.findAllForUserId(id);
         return mapList(bots);
     }
 
