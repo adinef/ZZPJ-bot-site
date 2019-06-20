@@ -3,7 +3,9 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
+import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
@@ -18,8 +20,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static pl.lodz.p.it.zzpj.botsite.entities.UserRole.SECURITY_ROLE;
+
 @RestController
-@RequestMapping("/usertask")
+@RequestMapping("/api/usertask")
 public class UserTaskController {
 
     private final ModelMapper modelMapper;
@@ -33,12 +37,12 @@ public class UserTaskController {
     }
 
     //SECURITY + GET ALL FOR USER
+    @Secured("ROLE_USER")
     @GetMapping(
-            value = "all",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
+            value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<UserTaskDTO> getAllByUserId(@RequestParam("userId") final Long userId)
+    public List<UserTaskDTO> getAllByUserId(@PathVariable("userId") final Long userId)
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
         List<UserTaskDTO> userTaskDTOs = new ArrayList<>();
         List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(userId);
@@ -47,8 +51,9 @@ public class UserTaskController {
     }
 
     // SECURITY
+    @Secured("ROLE_USER")
     @PostMapping(
-            value = "addtask",
+            value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public UserTaskDTO addTask(@RequestBody UserTaskDTO userTaskDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
@@ -58,6 +63,7 @@ public class UserTaskController {
     }
 
     // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
+    @Secured("ROLE_USER")
     @PutMapping(
             value = "edit/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
