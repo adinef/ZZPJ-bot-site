@@ -12,7 +12,9 @@ import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.MessageDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageUpdateException;
 import pl.lodz.p.it.zzpj.botsite.services.MessageService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MessageDTO;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserTaskDTO;
@@ -56,9 +58,9 @@ public class MessageController {
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public MessageDTO addMessage(@RequestBody MessageDTO messageDTO) throws MessageAdditionException {
+    public MessageDTO addMessage(@RequestBody MessageDTO messageDTO) throws MessageAdditionException, UserRetrievalException {
         Message message = this.modelMapper.map(messageDTO, Message.class);
-        Message addedMessage = messageService.addMessage(message);
+        Message addedMessage = messageService.addMessage(principalProvider.getUserId(), message);
         return modelMapper.map(addedMessage, MessageDTO.class);
     }
 
@@ -68,7 +70,8 @@ public class MessageController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public MessageDTO editMessage(@PathVariable Long id, @RequestBody MessageDTO messageDto) throws MessageNotFoundException {
+    public MessageDTO editMessage(@PathVariable Long id, @RequestBody MessageDTO messageDto)
+            throws MessageNotFoundException, MessageUpdateException {
         Message editedMessage = messageService.updateMessage(principalProvider.getUserId(), id, messageDto.getContent());
         return modelMapper.map(editedMessage, MessageDTO.class);
     }

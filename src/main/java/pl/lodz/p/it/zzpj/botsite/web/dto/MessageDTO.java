@@ -11,6 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MessageDTO {
     private String id;
-    private String userId;
     private String content;
 }
