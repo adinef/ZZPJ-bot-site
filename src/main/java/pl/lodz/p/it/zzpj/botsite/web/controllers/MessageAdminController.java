@@ -13,6 +13,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.MessageDeletionExcep
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageUpdateException;
 import pl.lodz.p.it.zzpj.botsite.services.MessageService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MessageDTO;
 
@@ -69,7 +70,7 @@ public class MessageAdminController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public MessageDTO editMessageForUser(@PathVariable("userId") Long userId, @PathVariable("messageId") Long messageId,
-                                         @RequestBody MessageDTO messageDto) throws MessageNotFoundException {
+                                         @RequestBody MessageDTO messageDto) throws MessageNotFoundException, MessageUpdateException {
         Message editedMessage = messageService.updateMessage(userId, messageId, messageDto.getContent());
         return modelMapper.map(editedMessage, MessageDTO.class);
     }

@@ -7,13 +7,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.lodz.p.it.zzpj.botsite.entities.Message;
+import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
+import pl.lodz.p.it.zzpj.botsite.repositories.MessageRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
-import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
@@ -27,91 +33,107 @@ import static org.mockito.Mockito.when;
 class MessageServiceImplTest {
 
     @Autowired
-    private UserTaskService userTaskService;
+    private MessageService messageService;
 
     @Mock
-    private UserTaskRepository userTaskRepository;
+    private MessageRepository messageRepository;
 
     @Mock
     private UserRepository userRepository;
 
-
     @BeforeEach
     void setup() {
-        this.userTaskService = new UserTaskServiceImpl(userTaskRepository, userRepository);
+        this.messageService = new MessageServiceImpl(messageRepository, userRepository);
     }
 
     @Test
-    void findByIdShouldReturnEntityOfUserTask() throws UserTaskRetrievalException {
-        UserTask task = UserTask
+    void findByIdShouldReturnEntityOfMessage() throws MessageRetrievalException {
+        User user = User
                 .builder()
                 .id(1L)
                 .build();
-        when(userTaskRepository.findById(1L)).thenReturn(Optional.of(task));
-        Assertions.assertEquals((Long)1L, userTaskService.findById(1L).getId());
+        Message message = Message
+                .builder()
+                .id(1L)
+                .user(user)
+                .content("content")
+                .build();
+        when(messageRepository.findById(1L)).thenReturn(Optional.of(message));
+        Assertions.assertEquals((Long) 1L, messageService.findById(1L).getId());
     }
 
     @Test
     void findByIdShouldThrowExceptionAfterDatabaseRuntimeException() {
-        when(userTaskRepository.findById(any())).thenThrow(RuntimeException.class);
-        Assertions.assertThrows(UserTaskRetrievalException.class, () -> userTaskService.findById(1L));
+        when(messageRepository.findById(any())).thenThrow(RuntimeException.class);
+        Assertions.assertThrows(MessageRetrievalException.class, () -> messageService.findById(1L));
     }
 
     @Test
-    void findByIdShouldThrowExceptionWhenTaskNotFound() {
-        when(userTaskRepository.findById(1L)).thenReturn(Optional.empty());
-        Assertions.assertThrows(UserTaskRetrievalException.class, () -> userTaskService.findById(1L));
+    void findByIdShouldThrowExceptionWhenMessageNotFound() {
+        when(messageRepository.findById(1L)).thenReturn(Optional.empty());
+        Assertions.assertThrows(MessageRetrievalException.class, () -> messageService.findById(1L));
     }
 
     @Test
-    void addUserTaskShouldAddTaskToDatabase() throws UserTaskIdAlreadyExistsException, UserTaskAdditionException {
-        UserTask task = UserTask
-                .builder()
-                .build();
-        userTaskService.addUserTask(task);
-        verify(userTaskRepository).save(task);
-    }
-
-    @Test
-    void addUserTaskShouldThrowUserTaskAdditionException() {
-        UserTask task = UserTask
+    void addMessageShouldAddMessageToDatabase() throws MessageAdditionException, UserRetrievalException {
+        User user = User
                 .builder()
                 .id(1L)
                 .build();
-        Assertions.assertThrows(UserTaskAdditionException.class, () -> userTaskService.addUserTask(task));
+        Message message = Message
+                .builder()
+                .id(1L)
+                .user(user)
+                .content("content")
+                .build();
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        messageService.addMessage(1L, message);
+        verify(messageRepository).save(message);
     }
 
     @Test
-    void updateShouldProceedWithUpdate() throws UserTaskUpdateException {
-        UserTask task = UserTask
+    void addMessageShouldThrowMessageAdditionException() {
+        Message message = Message
                 .builder()
-                .id(1L)
-                .reminderDate(LocalDateTime.now().plusDays(1))
                 .build();
-        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
-        when(userTaskRepository.save(task)).thenReturn(task);
-        Assertions.assertEquals(task, userTaskService.update(null,task));
+        Assertions.assertThrows(MessageAdditionException.class, () -> messageService.addMessage(1L,message));
     }
 
     @Test
-    void updateShouldThrowWhenTaskByIdNotFound() {
-        UserTask task = UserTask
+    void updateShouldProceedWithUpdate() throws MessageNotFoundException, MessageUpdateException {
+        User user = User
                 .builder()
                 .id(1L)
-                .reminderDate(LocalDateTime.now().plusDays(1))
                 .build();
-        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.empty());
-        Assertions.assertThrows(UserTaskUpdateException.class, () -> userTaskService.update(null,task));
+        Message message = Message
+                .builder()
+                .id(1L)
+                .user(user)
+                .content("content")
+                .build();
+        when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
+        when(messageRepository.save(message)).thenReturn(message);
+        Assertions.assertEquals(message, messageService.updateMessage(1L, 1L, "contents"));
     }
 
     @Test
-    void updateDateShouldThrowDateTimeException() {
-        LocalDateTime today = LocalDateTime.now();
-        UserTask task = UserTask
+    void updateShouldThrowWhenMessageByIdNotFound() {
+        Message message = Message
                 .builder()
                 .id(1L)
-                .reminderDate(today.minusDays(1))
+                .content("content")
                 .build();
-        Assertions.assertThrows(DateTimeException.class, () -> userTaskService.update(null,task));
+        when(messageRepository.findById(message.getId())).thenReturn(Optional.empty());
+        Assertions.assertThrows(MessageNotFoundException.class, () -> messageService.updateMessage(null, 1L, "contents"));
+    }
+
+    @Test
+    void updateContentBlankShouldThrowUpdateException() {
+        Message message = Message
+                .builder()
+                .id(1L)
+                .content("content")
+                .build();
+        Assertions.assertThrows(MessageUpdateException.class, () -> messageService.updateMessage(null, 1L, " "));
     }
 }
