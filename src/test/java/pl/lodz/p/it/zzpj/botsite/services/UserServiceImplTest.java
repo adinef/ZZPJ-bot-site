@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
 
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -169,7 +171,33 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateUserShouldThrowExceptionWhenGivenEmailAlreadyExists() {
+    void updateUserShouldThrowExceptionWhenOtherUserWithGivenEmailAlreadyExists() {
+
+
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("ValidPassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        User otherUser = User
+                .builder()
+                .login("OtherLogin")
+                .password("Pass")
+                .email("otherEmail@hmail.com")
+                .build();
+
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(otherUser));
+
+        Assertions.assertThrows(UserUpdateException.class, () -> userService.updateUser(user));
+
+
+    }
+
+    @Test
+    void updateUserShouldNotThrowExceptionWhenEmailIsTheSame() {
 
 
         User user = User
@@ -180,9 +208,9 @@ class UserServiceImplTest {
                 .build();
 
         when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(new User()));
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
-        Assertions.assertThrows(UserUpdateException.class, () -> userService.updateUser(user));
+        Assertions.assertDoesNotThrow(() -> userService.updateUser(user));
 
 
     }
@@ -216,6 +244,21 @@ class UserServiceImplTest {
         verify(userRepository).save(userWithHashedPwd);
 
 
+    }
+
+    @Test
+    void updateUserShouldNotUpdatePasswordIfItIsNull() throws UserRetrievalException, UserUpdateException {
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
+
+        userService.updateUser(user);
+        verify(userRepository).save(user);
+        verify(passwordEncoder, Mockito.never()).encode(any());
     }
 
 

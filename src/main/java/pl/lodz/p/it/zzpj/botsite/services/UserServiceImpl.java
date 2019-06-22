@@ -74,11 +74,23 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     public void updateUser(User user) throws UserRetrievalException, UserUpdateException {
         this.findByLogin(user.getLogin());
 
-        if (this.userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserUpdateException("User with given email already exists!");
+        Optional<User> emailHolder = this.userRepository.findByEmail(user.getEmail());
+
+        boolean userWithGivenEmailExists = emailHolder.isPresent();
+
+        if (userWithGivenEmailExists) {
+
+            boolean principalIsEmailHolder = emailHolder.get().getLogin().equals(user.getLogin());
+
+            if (!principalIsEmailHolder) {
+                throw new UserUpdateException("User with given email already exists!");
+            }
+
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
 
         this.userRepository.save(user);
     }
