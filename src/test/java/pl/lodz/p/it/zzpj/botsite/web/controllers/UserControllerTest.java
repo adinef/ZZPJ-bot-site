@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
@@ -14,12 +15,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
+import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
+import pl.lodz.p.it.zzpj.botsite.web.dto.UserUpdateDto;
 
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import java.security.Principal;
+
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,18 +35,23 @@ public class UserControllerTest {
     private UserController userController;
 
     @Mock
-    ApplicationEventPublisher applicationEventPublisher;
+    private UserService userService;
+
+    @Spy
+    private ModelMapper modelMapperMock;
 
     @Mock
-    UserService userService;
-
-    private Gson gson = new Gson();
+    private VerificationTokenService verificationTokenService;
 
     @Mock
-    private ModelMapper modelMapper;
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    @Mock
+    private Principal principal;
+
 
     private ModelMapper realModelMapper = new ModelMapper();
-
+    private Gson gson = new Gson();
 
     @BeforeEach
     public void setUp() {
@@ -59,7 +68,7 @@ public class UserControllerTest {
                 .email("e123@email.ioio")
                 .build();
         UserRegistrationDto dto = realModelMapper.map(user, UserRegistrationDto.class);
-        when(modelMapper.map(dto, User.class)).thenReturn(user);
+        when(modelMapperMock.map(dto, User.class)).thenReturn(user);
         when(userService.registerUser(any())).thenReturn(user);
         String json = gson.toJson(dto);
         mockMvc.perform(
@@ -69,5 +78,62 @@ public class UserControllerTest {
         ).andExpect(status().isOk());
         verify(userService).registerUser(any(User.class));
     }
+
+    @Test
+    public void updateUserShouldWorkAsExpected() throws Exception {
+
+
+        String newName = "newName";
+        String newLastName = "newLastName";
+        String newEmail = "newEmail@hmail.ioio";
+
+        User userBeforeUpdate = User
+                .builder()
+                .login("Login")
+                .email("someMail@mail.ioio")
+                .name("Name")
+                .lastName("LastName")
+                .password("hashedPassword")
+                .build();
+
+
+        UserUpdateDto updateDto = UserUpdateDto.builder()
+                .name(newName)
+                .lastName(newLastName)
+                .email(newEmail)
+                .build();
+
+        User userAfterUpdate = User
+                .builder()
+                .login(userBeforeUpdate.getLogin())
+                .email(newEmail)
+                .name(newName)
+                .lastName(newLastName)
+                .password(userBeforeUpdate.getPassword())
+                .build();
+
+
+        String json = gson.toJson(updateDto);
+
+        when(principal.getName()).thenReturn(userBeforeUpdate.getLogin());
+        when(userService.findByLogin(userBeforeUpdate.getLogin())).thenReturn(userBeforeUpdate);
+
+        spy(modelMapperMock).map(updateDto, userBeforeUpdate);
+
+        doCallRealMethod().when(modelMapperMock).map(updateDto, userBeforeUpdate);
+
+        mockMvc.perform(
+                put("/api/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .principal(this.principal)
+        ).andExpect(status().isOk());
+
+        verify(modelMapperMock).map(updateDto, userBeforeUpdate);
+
+        verify(userService).updateUser(userAfterUpdate);
+
+    }
+
 
 }

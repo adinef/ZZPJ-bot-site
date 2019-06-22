@@ -13,6 +13,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInf
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.RetrievalTimeException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.ExpiredVerificationTokenException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.StateNotConsistentException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
@@ -20,8 +21,10 @@ import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.StatusDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
+import pl.lodz.p.it.zzpj.botsite.web.dto.UserUpdateDto;
 import pl.lodz.p.it.zzpj.botsite.web.events.OnUserRegistrationCompleteEvent;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 
@@ -64,7 +67,7 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public StatusDto activateUser(@RequestParam String token)
-            throws StateNotConsistentException, RetrievalTimeException, NotFoundException {
+            throws StateNotConsistentException, RetrievalTimeException, NotFoundException, UserUpdateException {
         VerificationTokenInfo tokenInfo = this.verificationTokenService.findVerificationTokenInfo(token);
         if (tokenInfo.getExpirationTime().isAfter(LocalDateTime.now())) {
             throw new ExpiredVerificationTokenException();
@@ -73,4 +76,18 @@ public class UserController {
         this.userService.updateUser(user);
         return new StatusDto("Successfully activated");
     }
+
+    @PutMapping
+    public StatusDto updateOwnAccount(@RequestBody UserUpdateDto userUpdateDto, Principal principal)
+            throws UserRetrievalException, UserUpdateException {
+
+        User user = this.userService.findByLogin(principal.getName());
+        modelMapper.map(userUpdateDto, user);
+
+        this.userService.updateUser(user);
+
+        return new StatusDto("Successfully updated");
+    }
+
+
 }

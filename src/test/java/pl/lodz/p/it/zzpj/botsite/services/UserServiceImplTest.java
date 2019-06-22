@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
@@ -138,9 +139,8 @@ class UserServiceImplTest {
     }
 
 
-
     @Test
-    void updateUserShouldWorkAsExpected() throws UserRetrievalException {
+    void updateUserShouldWorkAsExpected() throws UserRetrievalException, UserUpdateException {
         User user = User
                 .builder()
                 .login("ValidLogin")
@@ -155,7 +155,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateUserThrowExceptionWhenUserNotFound() {
+    void updateUserShouldThrowExceptionWhenUserNotFound() {
         User user = User
                 .builder()
                 .login("ValidLogin")
@@ -167,5 +167,56 @@ class UserServiceImplTest {
 
         Assertions.assertThrows(UserRetrievalException.class, () -> userService.updateUser(user));
     }
+
+    @Test
+    void updateUserShouldThrowExceptionWhenGivenEmailAlreadyExists() {
+
+
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password("ValidPassword")
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(new User()));
+
+        Assertions.assertThrows(UserUpdateException.class, () -> userService.updateUser(user));
+
+
+    }
+
+    @Test
+    void updateUserShouldHashPassword() throws UserRetrievalException, UserUpdateException {
+
+        String password = "ValidPassword";
+        String hashedPassword = "HASH";
+
+        User user = User
+                .builder()
+                .login("ValidLogin")
+                .password(password)
+                .email("ValidEmail@hmail.com")
+                .build();
+
+        User userWithHashedPwd = User
+                .builder()
+                .login(user.getLogin())
+                .password(hashedPassword)
+                .email(user.getEmail())
+                .build();
+
+        when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
+
+        userService.updateUser(user);
+
+        verify(passwordEncoder).encode(password);
+        verify(userRepository).save(userWithHashedPwd);
+
+
+    }
+
 
 }

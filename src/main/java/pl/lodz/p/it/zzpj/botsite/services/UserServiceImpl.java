@@ -10,6 +10,7 @@ import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
@@ -70,8 +71,15 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public void updateUser(User user) throws UserRetrievalException {
+    public void updateUser(User user) throws UserRetrievalException, UserUpdateException {
         this.findByLogin(user.getLogin());
+
+        if (this.userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new UserUpdateException("User with given email already exists!");
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         this.userRepository.save(user);
     }
 
