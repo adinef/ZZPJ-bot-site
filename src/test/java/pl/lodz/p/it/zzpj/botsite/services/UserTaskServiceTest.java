@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
@@ -86,14 +87,19 @@ class UserTaskServiceTest {
 
     @Test
     void updateShouldProceedWithUpdate() throws UserTaskUpdateException {
+        User user = User
+                .builder()
+                .id(1L)
+                .build();
         UserTask task = UserTask
                 .builder()
+                .user(user)
                 .id(1L)
                 .reminderDate(LocalDateTime.now().plusDays(1))
                 .build();
         when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
         when(userTaskRepository.save(task)).thenReturn(task);
-        Assertions.assertEquals(task, userTaskService.update(null,task));
+        Assertions.assertEquals(task, userTaskService.update(1L,task));
     }
 
     @Test
