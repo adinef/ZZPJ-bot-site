@@ -38,7 +38,7 @@ public class MessageAdminController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(
-            value = "user/{userId}/messages",
+            value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public List<MessageDTO> getAllMessagesByUserId(@PathVariable("userId") final Long userId)
@@ -58,7 +58,7 @@ public class MessageAdminController {
                                                 @PathVariable("messageId") final Long messageId)
             throws MessageRetrievalException {
         List<MessageDTO> MessageDTOs = new ArrayList<>();
-        List<Message> messageList = messageService.getSingleMessageForUserById(userId, messageId);
+        Message messageList = messageService.getSingleMessageForUserById(userId, messageId);
         modelMapper.map(messageList, MessageDTOs);
         return MessageDTOs;
     }
@@ -80,8 +80,7 @@ public class MessageAdminController {
             value = "user/{userId}/message/{messageId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public void deleteMessageForUser(@PathVariable("userId") Long userId, @PathVariable("messageId") Long messageId,
-                                         @RequestBody MessageDTO messageDto) throws MessageDeletionException {
+    public void deleteMessageForUser(@PathVariable("userId") Long userId, @PathVariable("messageId") Long messageId) throws MessageDeletionException {
         messageService.deleteMessage(userId, messageId);
     }
 }
