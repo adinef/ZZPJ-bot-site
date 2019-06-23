@@ -8,12 +8,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskStatusException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
@@ -22,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -116,5 +113,49 @@ class UserTaskServiceTest {
                 .reminderDate(today.minusDays(1))
                 .build();
         Assertions.assertThrows(DateTimeException.class, () -> userTaskService.update(task));
+    }
+
+    @Test
+    void updateReminderDateShouldUpdateReminderDate() throws UserTaskUpdateException {
+        LocalDateTime today = LocalDateTime.now();
+        UserTask task = UserTask
+                .builder()
+                .id(1L)
+                .reminderDate(today)
+                .build();
+        Assertions.assertEquals(today, task.getReminderDate());
+        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
+        userTaskService.updateUserTaskReminderDate(task, today.plusDays(1));
+        Assertions.assertEquals(today.plusDays(1), task.getReminderDate());
+    }
+
+    @Test
+    void updateIsDoneStatusShouldUpdateIsDone() throws UserTaskUpdateException {
+        LocalDateTime today = LocalDateTime.now();
+        UserTask task = UserTask
+                .builder()
+                .id(1L)
+                .reminderDate(today)
+                .isDone(false)
+                .build();
+        Assertions.assertEquals(today, task.getReminderDate());
+        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
+        userTaskService.updateUserTaskIsDoneStatus(task, true);
+        Assertions.assertTrue(task.isDone());
+    }
+
+    @Test
+    void updateIsRepeatableStatusShouldUpdateIsRepeatable() throws UserTaskUpdateException {
+        LocalDateTime today = LocalDateTime.now();
+        UserTask task = UserTask
+                .builder()
+                .id(1L)
+                .reminderDate(today)
+                .isRepeatable(true)
+                .build();
+        Assertions.assertEquals(today, task.getReminderDate());
+        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
+        userTaskService.updateUserTaskIsRepeatableStatus(task, false);
+        Assertions.assertFalse(task.isDone());
     }
 }
