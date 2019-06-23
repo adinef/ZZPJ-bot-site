@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.UserTaskDeletionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
@@ -138,7 +140,6 @@ class UserTaskServiceTest {
                 .reminderDate(today)
                 .isDone(false)
                 .build();
-        Assertions.assertEquals(today, task.getReminderDate());
         when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
         userTaskService.updateUserTaskIsDoneStatus(task, true);
         Assertions.assertTrue(task.isDone());
@@ -153,9 +154,21 @@ class UserTaskServiceTest {
                 .reminderDate(today)
                 .isRepeatable(true)
                 .build();
-        Assertions.assertEquals(today, task.getReminderDate());
         when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
         userTaskService.updateUserTaskIsRepeatableStatus(task, false);
         Assertions.assertFalse(task.isDone());
+    }
+
+    @Test
+    void deleteUserTaskShouldDeleteTask() throws UserTaskDeletionException {
+        LocalDateTime today = LocalDateTime.now();
+        UserTask task = UserTask
+                .builder()
+                .id(1L)
+                .reminderDate(today)
+                .isRepeatable(true)
+                .build();
+        userTaskService.deleteUserTask(task.getId());
+        verify(userTaskRepository).deleteById(task.getId());
     }
 }
