@@ -26,7 +26,6 @@ public class UserTask {
     @ManyToOne
     private Bot bot;
 
-    @NotNull
     @ManyToOne
     private Message message;
 
