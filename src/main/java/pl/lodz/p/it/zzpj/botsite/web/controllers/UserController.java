@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.VerificationTokenInfo;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.NotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.VerificationTokenInfoNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.RetrievalTimeException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
@@ -26,7 +25,6 @@ import pl.lodz.p.it.zzpj.botsite.web.events.OnUserRegistrationCompleteEvent;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 
 @RestController
 @RequestMapping(value = "/api/user")
@@ -73,7 +71,7 @@ public class UserController {
             throw new ExpiredVerificationTokenException();
         }
         User user = tokenInfo.getUser();
-        this.userService.updateUser(user);
+        this.userService.updateUser(user, user.getId());
         return new StatusDto("Successfully activated");
     }
 
@@ -82,9 +80,9 @@ public class UserController {
             throws UserRetrievalException, UserUpdateException {
 
         User user = this.userService.findByLogin(principal.getName());
-        modelMapper.map(userUpdateDto, user);
-
-        this.userService.updateUser(user);
+        User updateUser = modelMapper.map(userUpdateDto, User.class);
+        updateUser.setLogin(user.getLogin());
+        this.userService.updateUser(updateUser, user.getId());
 
         return new StatusDto("Successfully updated");
     }

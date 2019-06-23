@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
@@ -71,31 +72,44 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public void updateUser(User user) throws UserRetrievalException, UserUpdateException {
-        this.findByLogin(user.getLogin());
+    public void updateUser(User newUserData, Long userId) throws UserRetrievalException, UserUpdateException {
+        User oldUser = this.userRepository.findById(userId).orElseThrow(UserRetrievalException::new);
 
-        Optional<User> emailHolder = this.userRepository.findByEmail(user.getEmail());
+        boolean emailProvided = newUserData.getEmail() != null;
+        boolean passwordProvided = newUserData.getPassword() != null;
+        boolean nameProvided = newUserData.getName() != null;
+        boolean lastNameProvided = newUserData.getLastName() != null;
 
-        boolean userWithGivenEmailExists = emailHolder.isPresent();
+        if (emailProvided) {
+            Optional<User> emailHolder = this.userRepository.findByEmail(newUserData.getEmail());
 
-        if (userWithGivenEmailExists) {
-
-            boolean principalIsEmailHolder = emailHolder.get().getLogin().equals(user.getLogin());
-
-            if (!principalIsEmailHolder) {
+            boolean userWithGivenEmailExists = emailHolder.isPresent();
+            if (userWithGivenEmailExists && !emailHolder.get().equals(oldUser)) {
                 throw new UserUpdateException("User with given email already exists!");
             }
-
         }
 
-        if (user.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (passwordProvided) {
+            newUserData.setPassword(passwordEncoder.encode(newUserData.getPassword()));
         }
 
-        this.userRepository.save(user);
+        User userToSave = User
+                .builder()
+                .id(userId)
+                .login(oldUser.getLogin())
+                .password(passwordProvided ? newUserData.getPassword() : oldUser.getPassword())
+                .name(nameProvided ? newUserData.getName() : oldUser.getName())
+                .lastName(lastNameProvided ? newUserData.getLastName() : oldUser.getLastName())
+                .email(emailProvided ? newUserData.getEmail() : oldUser.getEmail())
+                .active(oldUser.isActive())
+                .build();
+
+
+        this.userRepository.save(userToSave);
     }
 
     @Override
+    @Transactional
     public User registerUser(User user) throws UsernameAlreadyExistsException, UserAdditionException {
         if (!this.userRepository.findByLogin(user.getLogin()).isPresent()) {
             try {
