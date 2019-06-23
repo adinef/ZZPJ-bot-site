@@ -20,6 +20,7 @@ import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserUpdateDto;
 
 import java.security.Principal;
+import java.util.ArrayList;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,7 +38,7 @@ public class UserControllerTest {
     @Mock
     private UserService userService;
 
-    @Mock
+    @Spy
     private ModelMapper modelMapperMock;
 
     @Mock
@@ -79,60 +80,58 @@ public class UserControllerTest {
         verify(userService).registerUser(any(User.class));
     }
 
-//    @Test
-//    public void updateUserShouldWorkAsExpected() throws Exception {
-//
-//
-//        String newName = "newName";
-//        String newLastName = "newLastName";
-//        String newEmail = "newEmail@hmail.ioio";
-//
-//        User userBeforeUpdate = User
-//                .builder()
-//                .login("Login")
-//                .email("someMail@mail.ioio")
-//                .name("Name")
-//                .lastName("LastName")
-//                .password("hashedPassword")
-//                .build();
-//
-//
-//        UserUpdateDto updateDto = UserUpdateDto.builder()
-//                .name(newName)
-//                .lastName(newLastName)
-//                .email(newEmail)
-//                .build();
-//
-//        User userAfterUpdate = User
-//                .builder()
-//                .login(userBeforeUpdate.getLogin())
-//                .email(newEmail)
-//                .name(newName)
-//                .lastName(newLastName)
-//                .build();
-//
-//
-//        String json = gson.toJson(updateDto);
-//
-//        when(principal.getName()).thenReturn(userBeforeUpdate.getLogin());
-//        when(userService.findByLogin(userBeforeUpdate.getLogin())).thenReturn(userBeforeUpdate);
-//
-////        spy(modelMapperMock).map(updateDto, userBeforeUpdate);
-//
-////        doCallRealMethod().when(modelMapperMock).map(updateDto, userBeforeUpdate);
-//
-//        mockMvc.perform(
-//                put("/api/user")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(json)
-//                        .principal(this.principal)
-//        ).andExpect(status().isOk());
-//
-//        User u = verify(modelMapperMock).map(updateDto, User.class);
-//
-//        verify(userService).updateUser(u);
-//
-//    }
+    @Test
+    public void updateUserShouldWorkAsExpected() throws Exception {
+
+
+        String newName = "newName";
+        String newLastName = "newLastName";
+        String newEmail = "newEmail@hmail.ioio";
+
+        User userBeforeUpdate = User
+                .builder()
+                .login("Login")
+                .id(Long.valueOf(99))
+                .email("someMail@mail.ioio")
+                .name("Name")
+                .lastName("LastName")
+                .password("hashedPassword")
+                .build();
+
+
+        UserUpdateDto updateDto = UserUpdateDto.builder()
+                .name(newName)
+                .lastName(newLastName)
+                .email(newEmail)
+                .build();
+
+        User updateUser = User
+                .builder()
+                .login(userBeforeUpdate.getLogin())
+                .name(updateDto.getName())
+                .lastName(updateDto.getLastName())
+                .email(updateDto.getEmail())
+                .roles(new ArrayList<>())
+                .build();
+
+
+        String json = gson.toJson(updateDto);
+
+        when(principal.getName()).thenReturn(userBeforeUpdate.getLogin());
+        when(userService.findByLogin(userBeforeUpdate.getLogin())).thenReturn(userBeforeUpdate);
+        spy(modelMapperMock).map(updateDto, userBeforeUpdate);
+
+
+        mockMvc.perform(
+                put("/api/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+                        .principal(this.principal)
+        ).andExpect(status().isOk());
+
+        verify(userService).updateUser(updateUser, userBeforeUpdate.getId());
+
+    }
 
 
 }
