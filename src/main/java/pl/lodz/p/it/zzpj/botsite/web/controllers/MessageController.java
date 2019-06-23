@@ -11,6 +11,7 @@ import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.MessageDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
@@ -19,6 +20,7 @@ import pl.lodz.p.it.zzpj.botsite.services.MessageService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MessageDTO;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserTaskDTO;
 
+import javax.websocket.server.PathParam;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,13 +54,22 @@ public class MessageController {
         return MessageDTOs;
     }
 
+    @Secured("ROLE_USER")
+    @GetMapping(
+            value = "{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public MessageDTO getMessageForCurrentUserById(@PathVariable("id") Long messageId) throws MessageRetrievalException {
+        Message message = messageService.getSingleMessageForUserById(principalProvider.getUserId(), messageId);
+        return modelMapper.map(message,MessageDTO.class);
+    }
 
     @Secured("ROLE_USER")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public MessageDTO addMessage(@RequestBody MessageDTO messageDTO) throws MessageAdditionException, UserRetrievalException {
+    public MessageDTO addMessage(@RequestBody MessageDTO messageDTO) throws MessageAdditionException, UserNotFoundException {
         Message message = this.modelMapper.map(messageDTO, Message.class);
         Message addedMessage = messageService.addMessage(principalProvider.getUserId(), message);
         return modelMapper.map(addedMessage, MessageDTO.class);
@@ -66,13 +77,13 @@ public class MessageController {
 
     @Secured("ROLE_USER")
     @PutMapping(
-            value = "edit/{id}",
+            value = "{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public MessageDTO editMessage(@PathVariable Long id, @RequestBody MessageDTO messageDto)
+    public MessageDTO editMessage(@PathVariable("id") Long messageId, @RequestBody MessageDTO messageDto)
             throws MessageNotFoundException, MessageUpdateException {
-        Message editedMessage = messageService.updateMessage(principalProvider.getUserId(), id, messageDto.getContent());
+        Message editedMessage = messageService.updateMessage(principalProvider.getUserId(), messageId, messageDto.getContent());
         return modelMapper.map(editedMessage, MessageDTO.class);
     }
 
@@ -81,7 +92,7 @@ public class MessageController {
             value = "{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
-    public void deleteMessage(@PathVariable Long id, @RequestBody MessageDTO messageDto) throws MessageDeletionException {
-        messageService.deleteMessage(principalProvider.getUserId(), id);
+    public void deleteMessage(@PathVariable("id") Long messageId) throws MessageDeletionException {
+        messageService.deleteMessage(principalProvider.getUserId(), messageId);
     }
 }

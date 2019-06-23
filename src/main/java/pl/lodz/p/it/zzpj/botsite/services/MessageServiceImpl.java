@@ -7,6 +7,7 @@ import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.MessageDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
@@ -32,10 +33,10 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Message addMessage(Long userId, Message message) throws MessageAdditionException, UserRetrievalException {
+    public Message addMessage(Long userId, Message message) throws MessageAdditionException, UserNotFoundException {
         if(StringUtils.isBlank(message.getContent())) throw new MessageAdditionException("Content cannot be blank.");
         Optional<User> user = userRepository.findById(userId);
-        User retrievedUser = user.orElseThrow(() -> new UserRetrievalException("No user with ID specified exists."));
+        User retrievedUser = user.orElseThrow(() -> new UserNotFoundException("No user with ID specified exists."));
         message.setUser(retrievedUser);
         try {
             return this.messageRepository.save(message);
@@ -54,10 +55,10 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<Message> getSingleMessageForUserById(Long userId, Long messageId) throws MessageRetrievalException {
+    public Message getSingleMessageForUserById(Long userId, Long messageId) throws MessageRetrievalException {
         try {
             List<Message> messages = this.messageRepository.findByUserId(userId);
-            return messages.stream().filter(m -> m.getId().equals(messageId)).collect(Collectors.toList());
+            return messages.stream().filter(m -> m.getId().equals(messageId)).findFirst().orElseThrow(() -> new MessageRetrievalException("No message with given ID"));
         } catch (final Exception e) {
             throw new MessageRetrievalException("Message with given ID doesn't exist for this user", e);
         }
@@ -95,7 +96,8 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void deleteMessage(Long userId, Long id) throws MessageDeletionException {
         try {
-            this.messageRepository.deleteById(id);
+            Message message = this.getSingleMessageForUserById(userId,id);
+            this.messageRepository.deleteById(message.getId());
         } catch (final Exception e) {
             throw new MessageDeletionException("Could not delete message.", e);
         }
