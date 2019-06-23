@@ -4,17 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.UserTaskDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,12 +62,6 @@ public class UserTaskServiceImpl implements UserTaskService {
         }
     }
 
-    //TODO Need to decide if it is necessary
-    @Override
-    public List<UserTask> getListOfUserTasksByBotId(Long botId) throws UserTaskNotFoundException {
-        return null;
-    }
-
     @Override
     public UserTask update(UserTask userTask) throws UserTaskUpdateException {
         if (userTask.getReminderDate().isBefore(LocalDateTime.now())) {
@@ -81,4 +75,50 @@ public class UserTaskServiceImpl implements UserTaskService {
             throw new UserTaskUpdateException("Task could not be updated.", e);
         }
     }
+
+    @Override
+    public void deleteUserTask(Long id) throws UserTaskDeletionException {
+        try {
+            userTaskRepository.deleteById(id);
+        } catch (final Exception e) {
+            throw new UserTaskDeletionException("Could not delete task.", e);
+        }
+    }
+
+    @Override
+    public UserTask updateUserTaskReminderDate(UserTask userTask, LocalDateTime reminderDate) throws UserTaskUpdateException {
+        try {
+            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
+            UserTask retrievedTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
+            retrievedTask.setReminderDate(reminderDate);
+            return userTaskRepository.save(retrievedTask);
+        } catch (final Exception e) {
+            throw new UserTaskUpdateException("Task could not be updated.", e);
+        }
+    }
+
+    @Override
+    public UserTask updateUserTaskIsRepeatableStatus(UserTask userTask, boolean isRepeatable) throws UserTaskUpdateException {
+        try {
+            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
+            UserTask retrievedTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
+            retrievedTask.setRepeatable(isRepeatable);
+            return userTaskRepository.save(retrievedTask);
+        } catch (final Exception e) {
+            throw new UserTaskUpdateException("Task could not be updated.", e);
+        }
+    }
+
+    @Override
+    public UserTask updateUserTaskIsDoneStatus(UserTask userTask, boolean isDone) throws UserTaskUpdateException {
+        try {
+            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
+            UserTask retrievedTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
+            retrievedTask.setDone(isDone);
+            return userTaskRepository.save(retrievedTask);
+        } catch (final Exception e) {
+            throw new UserTaskUpdateException("Task could not be updated.", e);
+        }
+    }
+
 }

@@ -12,7 +12,6 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalExc
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
 import pl.lodz.p.it.zzpj.botsite.services.MessageService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MessageDTO;
-import pl.lodz.p.it.zzpj.botsite.web.dto.UserTaskDTO;
 
 import java.util.ArrayList;
 import java.util.List;
