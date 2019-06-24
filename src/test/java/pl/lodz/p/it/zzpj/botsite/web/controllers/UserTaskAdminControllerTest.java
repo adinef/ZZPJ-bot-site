@@ -1,5 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,12 +40,11 @@ class UserTaskAdminControllerTest {
 
     @Mock
     private ModelMapper modelMapper;
-
+    private Gson gson = new Gson();
     @Mock
     private UserTaskService userTaskService;
 
     private ModelMapper realModelMapper = new ModelMapper();
-    private Gson gson = new Gson();
 
     @InjectMocks
     private UserTaskAdminController userTaskAdminController;
@@ -159,6 +159,7 @@ class UserTaskAdminControllerTest {
     void addTask() throws Exception {
         Long id = 0L;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        ObjectMapper objectMapper = new ObjectMapper();
         Bot bot = Bot.builder()
                 .id(id)
                 .name("FirstBot")
@@ -180,23 +181,21 @@ class UserTaskAdminControllerTest {
                 .bot(bot)
                 .message(message)
                 .user(user)
-                .reminderDate(re)
-                .creationDate(cr)
+                .reminderDate(LocalDateTime.parse("02-02-2018 12:00:11", formatter))
+                .creationDate(LocalDateTime.parse("01-02-2018 12:00:11", formatter))
                 .build();
 
         UserTaskAdminDTO dto = this.realModelMapper.map(userTask, UserTaskAdminDTO.class);
 
-
         when(userTaskService.addUserTask(any())).thenReturn(userTask);
         when(this.modelMapper.map(dto, UserTask.class)).thenReturn(userTask);
         when(this.modelMapper.map(userTask, UserTaskAdminDTO.class)).thenReturn(dto);
-
+        String json = gson.toJson(dto);
         mockMvc.perform(
                 post("/api/usertaskAdmin")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .content(this.objectMapper.writeValueAsString(dto))
+                        .content(json)
         ).andExpect(status().isOk());
-
         verify(userTaskService).addUserTask(any(UserTask.class));
     }
 
