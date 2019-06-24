@@ -11,6 +11,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyE
 @Service
 public interface UserService extends UserDetailsService {
     User findByLogin(String login) throws UserRetrievalException;
+    User findById(Long id) throws UserRetrievalException;
     User addUser(User user) throws UsernameAlreadyExistsException, UserAdditionException;
     void updateUser(User user, Long id) throws UserRetrievalException, UserUpdateException;
     User registerUser(User user) throws UsernameAlreadyExistsException, UserAdditionException;

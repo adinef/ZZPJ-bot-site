@@ -1,7 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import com.google.gson.Gson;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,28 +8,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
-import pl.lodz.p.it.zzpj.botsite.entities.Bot;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
-import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
-import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.MessageService;
-import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MessageDTO;
-import pl.lodz.p.it.zzpj.botsite.web.dto.bots.BotCreationDTO;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -67,29 +55,7 @@ public class MessageAdminControllerTest {
     }
 
     @Test
-    public void getMessageByIdForUserShouldWorkAsExpected() throws Exception {
-        User user = User.builder()
-                .id(1L)
-                .build();
-        Message message = Message.builder()
-                .id(1L)
-                .content("blabla")
-                .user(user)
-                .build();
-        when(messageService.getSingleMessageForUserById(any(),any())).thenReturn(message);
-        MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
-        mockMvc.perform(
-                get("/api/messages/user/1/message/1")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content("")
-        ).andExpect(status().isOk());
-        verify(messageService).getSingleMessageForUserById(any(Long.class),any(Long.class));
-    }
-
-
-
-    @Test
-    public void getAllMessagesForUserShouldWorkAsExpected() throws Exception {
+    public void getAllMessagesByUserIdShouldWorkAsExpected() throws Exception {
         List<Message> messages = new ArrayList<>();
         User user = User.builder()
                 .id(1L)
@@ -104,7 +70,7 @@ public class MessageAdminControllerTest {
                 .content("blabla")
                 .user(user)
                 .build());
-        when(messageService.getAllByUserId(any())).thenReturn(messages);
+        when(messageService.findAllByUserId(any())).thenReturn(messages);
         List<MessageDTO> dtos = new ArrayList<>();
         this.realModelMapper.map(messages, dtos);
         String json = gson.toJson(dtos);
@@ -113,8 +79,28 @@ public class MessageAdminControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
         ).andExpect(status().isOk());
-        verify(messageService).getAllByUserId(any(Long.class));
+        verify(messageService).findAllByUserId(any(Long.class));
     }
+
+    @Test
+    public void getUsersMessageByIdShouldWorkAsExpected() throws Exception {
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Message message = Message.builder()
+                .id(1L)
+                .content("blabla")
+                .user(user)
+                .build();
+        when(messageService.findById(any())).thenReturn(message);
+        mockMvc.perform(
+                get("/api/messages/user/1/message/1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content("")
+        ).andExpect(status().isOk());
+        verify(messageService).findById(any(Long.class));
+    }
+
 
     @Test
     public void editMessageShouldWorkAsExpected() throws Exception {
@@ -128,20 +114,19 @@ public class MessageAdminControllerTest {
                 .build();
         MessageDTO dto = this.realModelMapper.map(editedMessage, MessageDTO.class);
         String json = gson.toJson(dto);
-        when(messageService.updateMessage(user.getId(), 2L, "blab")).thenReturn(editedMessage);
+        when(messageService.findById(any())).thenReturn(editedMessage);
+        when(messageService.updateMessage(editedMessage)).thenReturn(editedMessage);
         mockMvc.perform(
                 put("/api/messages/user/1/message/2")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
         ).andExpect(status().isOk());
-
-        verify(messageService).updateMessage(any(Long.class), any(Long.class), any(String.class));
+        verify(messageService).updateMessage(any());
     }
 
     @Test
     public void deleteMessageShouldWorkAsExpected() throws Exception {
         List<Message> messages = new ArrayList<>();
-
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -157,17 +142,15 @@ public class MessageAdminControllerTest {
                 .user(user)
                 .build());
         doAnswer(invocation -> {
-            Object arg1 = invocation.getArgument(1);
+            Object arg1 = invocation.getArgument(0);
             Message mes = messages.stream().filter(m ->
-                    m.getId().longValue() == ((Long) arg1).longValue()).findFirst().get();
-            Assertions.assertFalse(mes == null);
+                    m.getId().longValue() == ((Message) arg1).getId().longValue()).findFirst().get();
             messages.remove(mes);
             return null;
-        }).when(messageService).deleteMessage(any(Long.class), any(Long.class));
+        }).when(messageService).deleteMessage(any());
+        when(messageService.findById(any())).thenReturn(toBeDeleted);
         MessageDTO dto = this.realModelMapper.map(toBeDeleted, MessageDTO.class);
         String json = gson.toJson(dto);
-        System.out.println("json:");
-        System.out.println(json);
         Assertions.assertTrue(!json.isEmpty());
         mockMvc.perform(
                 delete("/api/messages/user/1/message/2")
@@ -175,7 +158,7 @@ public class MessageAdminControllerTest {
                         .content(json))
                 .andDo(print())
                 .andExpect(status().isOk());
-        verify(messageService).deleteMessage(any(Long.class), any(Long.class));
+        verify(messageService).deleteMessage(any());
         Assertions.assertEquals(1, messages.size());
     }
 }
