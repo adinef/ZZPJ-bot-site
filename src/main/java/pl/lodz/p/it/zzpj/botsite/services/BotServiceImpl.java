@@ -15,7 +15,7 @@ import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import java.util.List;
 import java.util.Optional;
 
-@Service("mongoBotService")
+@Service("botService")
 public class BotServiceImpl implements BotService {
 
     private final BotRepository botRepository;

@@ -9,7 +9,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalExcept
 import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
 import pl.lodz.p.it.zzpj.botsite.utils.TokenGenerator;
 
-@Service
+@Service("verificationTokenService")
 public class VerificationTokenServiceImpl implements VerificationTokenService {
 
     private final UserService userService;
