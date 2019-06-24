@@ -1,6 +1,7 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -41,12 +42,12 @@ public class UserTaskAdminController {
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<UserTaskUserDTO> getAllByUserId(@PathVariable("userId") final Long userId)
+    public List<UserTaskAdminDTO> getAllByUserId(@PathVariable("userId") final Long userId)
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
-        List<UserTaskUserDTO> userTaskUserDTOS = new ArrayList<>();
         List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(userId);
-        modelMapper.map(userTaskList, userTaskUserDTOS);
-        return userTaskUserDTOS;
+        java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskAdminDTO>>() {}.getType();
+        List<UserTaskAdminDTO> userTaskAdminDTOS = modelMapper.map(userTaskList, targetListType);
+        return userTaskAdminDTOS;
     }
 
     // GET SINGLE TASK
@@ -55,12 +56,11 @@ public class UserTaskAdminController {
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserTaskUserDTO getTaskByUserId(@PathVariable("id") final Long taskId)
+    public UserTaskAdminDTO getTaskByUserId(@PathVariable("id") final Long taskId)
             throws UserTaskRetrievalException {
-        UserTaskUserDTO userTaskUserDTOS = new UserTaskUserDTO();
         UserTask userTask = userTaskService.findById(taskId);
-        modelMapper.map(userTask, userTaskUserDTOS);
-        return userTaskUserDTOS;
+        UserTaskAdminDTO userTaskAdminDTOS = modelMapper.map(userTask, UserTaskAdminDTO.class);
+        return userTaskAdminDTOS;
     }
 
     // ADD TASK
@@ -70,7 +70,7 @@ public class UserTaskAdminController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public UserTaskAdminDTO addTask(@RequestBody UserTaskAdminDTO userTaskAdminDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
-        UserTask userTask = this.modelMapper.map(userTaskAdminDTO, UserTask.class);
+        UserTask userTask = modelMapper.map(userTaskAdminDTO, UserTask.class);
         UserTask addedUserTask = userTaskService.addUserTask(userTask);
         return modelMapper.map(addedUserTask, UserTaskAdminDTO.class);
     }
@@ -82,11 +82,11 @@ public class UserTaskAdminController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserTaskUserDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskUserDTO userTaskUserDTO) throws UserTaskUpdateException {
-        UserTask userTask = this.modelMapper.map(userTaskUserDTO, UserTask.class);
+    public UserTaskAdminDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskAdminDTO userTaskAdminDTO) throws UserTaskUpdateException {
+        UserTask userTask = this.modelMapper.map(userTaskAdminDTO, UserTask.class);
         userTask.setId(id);
         UserTask updatedTask = this.userTaskService.update(userTask);
-        return modelMapper.map(updatedTask, UserTaskUserDTO.class);
+        return modelMapper.map(updatedTask, UserTaskAdminDTO.class);
     }
 
     // DELETE TASK
