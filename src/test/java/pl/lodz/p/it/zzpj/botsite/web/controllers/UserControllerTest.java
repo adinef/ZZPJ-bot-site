@@ -12,7 +12,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
@@ -26,6 +25,8 @@ import java.util.ArrayList;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
@@ -75,7 +76,7 @@ public class UserControllerTest {
                 post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-        ).andExpect(MockMvcResultMatchers.status().isOk());
+        ).andExpect(status().isOk());
         verify(userService).registerUser(any(User.class));
     }
 
@@ -125,7 +126,7 @@ public class UserControllerTest {
                 put("/api/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-        ).andExpect(MockMvcResultMatchers.status().isOk());
+        ).andExpect(status().isOk());
 
         verify(userService).updateUser(updateUser, userBeforeUpdate.getId());
 
@@ -149,8 +150,8 @@ public class UserControllerTest {
         String accountDataJSON = gson.toJson(userAccountDataDto);
 
          mockMvc.perform(get("/api/user"))
-                 .andExpect(MockMvcResultMatchers.content().json(accountDataJSON))
-                 .andExpect(MockMvcResultMatchers.status().isOk());
+                 .andExpect(content().json(accountDataJSON))
+                 .andExpect(status().isOk());
 
     }
 
