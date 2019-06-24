@@ -91,7 +91,7 @@ public class MessageControllerTest {
                 post("/api/messages")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
-        ).andExpect(status().isOk());
+        ).andExpect(status().isCreated());
 
         verify(messageService).addMessage(any(Long.class), any(Message.class));
     }
@@ -120,6 +120,7 @@ public class MessageControllerTest {
                 post("/api/messages")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json))
+                .andExpect(status().isOk())
         );
 
         verify(messageService).addMessage(any(Long.class), any(Message.class));

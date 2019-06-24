@@ -59,7 +59,7 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public void registerUser(@RequestBody UserRegistrationDto dto)
             throws UserAdditionException, UsernameAlreadyExistsException {
         User user = this.modelMapper.map(dto, User.class);
@@ -71,6 +71,7 @@ public class UserController {
             value = "activate",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public StatusDto activateUser(@RequestParam String token)
             throws StateNotConsistentException, RetrievalTimeException, NotFoundException, UserUpdateException {
         VerificationTokenInfo tokenInfo = this.verificationTokenService.findVerificationTokenInfo(token);

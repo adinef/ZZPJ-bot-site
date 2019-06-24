@@ -3,6 +3,7 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -47,6 +48,7 @@ public class MessageController {
             value = "",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public List<MessageDTO> getAllMessagesForCurrentUser() throws MessageRetrievalException {
         List<MessageDTO> MessageDTOs = new ArrayList<>();
         List<Message> messageList = messageService.getAllByUserId(principalProvider.getUserId());
@@ -59,6 +61,7 @@ public class MessageController {
             value = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public MessageDTO getMessageForCurrentUserById(@PathVariable("id") Long messageId) throws MessageRetrievalException {
         Message message = messageService.getSingleMessageForUserById(principalProvider.getUserId(), messageId);
         return modelMapper.map(message,MessageDTO.class);
@@ -69,6 +72,7 @@ public class MessageController {
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public MessageDTO addMessage(@RequestBody MessageDTO messageDTO) throws MessageAdditionException, UserNotFoundException {
         Message message = this.modelMapper.map(messageDTO, Message.class);
         Message addedMessage = messageService.addMessage(principalProvider.getUserId(), message);
@@ -81,6 +85,7 @@ public class MessageController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public MessageDTO editMessage(@PathVariable("id") Long messageId, @RequestBody MessageDTO messageDto)
             throws MessageNotFoundException, MessageUpdateException {
         Message editedMessage = messageService.updateMessage(principalProvider.getUserId(), messageId, messageDto.getContent());
@@ -92,6 +97,7 @@ public class MessageController {
             value = "{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public void deleteMessage(@PathVariable("id") Long messageId) throws MessageDeletionException {
         messageService.deleteMessage(principalProvider.getUserId(), messageId);
     }
