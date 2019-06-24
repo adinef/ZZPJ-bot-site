@@ -15,7 +15,6 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalExc
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageUpdateException;
 import pl.lodz.p.it.zzpj.botsite.repositories.MessageRepository;
-import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +32,9 @@ class MessageServiceImplTest {
     @Mock
     private MessageRepository messageRepository;
 
-    @Mock
-    private UserRepository userRepository;
-
     @BeforeEach
     void setup() {
-        this.messageService = new MessageServiceImpl(messageRepository, userRepository);
+        this.messageService = new MessageServiceImpl(messageRepository);
     }
 
     @Test
@@ -81,29 +77,11 @@ class MessageServiceImplTest {
                 .user(user)
                 .content("content")
                 .build();
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        messageService.addMessage(1L, message);
+        messageService.addMessage(message);
         verify(messageRepository).save(message);
     }
 
-    @Test
-    void addMessageShouldThrowMessageAdditionException() {
-        Message message = Message
-                .builder()
-                .build();
-        Assertions.assertThrows(MessageAdditionException.class, () -> messageService.addMessage(1L, message));
-    }
 
-    @Test
-    void addMessageWithNoUserShouldThrowMessageAdditionException() {
-        when(userRepository.findById(any())).thenReturn(Optional.empty());
-        Message message = Message
-                .builder()
-                .id(1L)
-                .content("content")
-                .build();
-        Assertions.assertThrows(UserNotFoundException.class, () -> messageService.addMessage(1L, message));
-    }
 
     @Test
     void getAllByUserIdShouldReturnListOfMessages() throws Exception {
@@ -122,52 +100,13 @@ class MessageServiceImplTest {
                 .user(user)
                 .build());
         when(messageRepository.findByUserId(any())).thenReturn(messages);
-        Assertions.assertEquals(2, messageService.getAllByUserId(1L).size());
-    }
-
-    @Test
-    void getSingleMessageForUserShouldReturnMessage() throws Exception {
-        List<Message> messages = new ArrayList<>();
-        User user = User.builder()
-                .id(1L)
-                .build();
-        messages.add(Message.builder()
-                .id(1L)
-                .content("blabla")
-                .user(user)
-                .build());
-        messages.add(Message.builder()
-                .id(2L)
-                .content("blabla")
-                .user(user)
-                .build());
-        when(messageRepository.findByUserId(any())).thenReturn(messages);
-        Assertions.assertNotNull(messageService.getSingleMessageForUserById(1L, 2L));
-    }
-
-    @Test
-    void getSingleMessageForUserShouldThrowWhenNoMessage() throws Exception {
-        List<Message> messages = new ArrayList<>();
-        User user = User.builder()
-                .id(1L)
-                .build();
-        messages.add(Message.builder()
-                .id(1L)
-                .content("blabla")
-                .user(user)
-                .build());
-        messages.add(Message.builder()
-                .id(2L)
-                .content("blabla")
-                .user(user)
-                .build());
-        when(messageRepository.findByUserId(any())).thenReturn(messages);
-        Assertions.assertThrows(MessageRetrievalException.class, () -> messageService.getSingleMessageForUserById(1L, 3L));
+        Assertions.assertEquals(2, messageService.findAllByUserId(1L).size());
     }
 
 
+
     @Test
-    void updateShouldProceedWithUpdate() throws MessageNotFoundException, MessageUpdateException {
+    void updateShouldProceedWithUpdate() throws MessageUpdateException {
         User user = User
                 .builder()
                 .id(1L)
@@ -178,31 +117,27 @@ class MessageServiceImplTest {
                 .user(user)
                 .content("content")
                 .build();
-        when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
-        when(messageRepository.save(message)).thenReturn(message);
-        Assertions.assertEquals(message, messageService.updateMessage(1L, 1L, "contents"));
+        Message edited = Message
+                .builder()
+                .id(1L)
+                .user(user)
+                .content("edited")
+                .build();
+        when(messageRepository.save(message)).thenReturn(edited);
+        Assertions.assertEquals(edited, messageService.updateMessage(message));
     }
 
     @Test
-    void updateShouldThrowWhenMessageByIdNotFound() {
+    void updateShouldThrowMessageNotFoundExceptionWhenRepositoryThrowsException() throws Exception{
         Message message = Message
                 .builder()
                 .id(1L)
                 .content("content")
                 .build();
-        when(messageRepository.findById(message.getId())).thenReturn(Optional.empty());
-        Assertions.assertThrows(MessageNotFoundException.class, () -> messageService.updateMessage(null, 1L, "contents"));
+        when(messageRepository.save(message)).thenThrow(RuntimeException.class);
+        Assertions.assertThrows(MessageUpdateException.class, () -> messageService.updateMessage(message));
     }
 
-    @Test
-    void updateContentBlankShouldThrowUpdateException() {
-        Message message = Message
-                .builder()
-                .id(1L)
-                .content("content")
-                .build();
-        Assertions.assertThrows(MessageUpdateException.class, () -> messageService.updateMessage(null, 1L, " "));
-    }
 
     @Test
     void deleteByIdShouldDeleteMessage() throws Exception {
@@ -221,7 +156,6 @@ class MessageServiceImplTest {
                 .content("blabla")
                 .user(user)
                 .build());
-        when(messageRepository.findByUserId(any())).thenReturn(messages);
         doAnswer(invocation -> {
             Object arg1 = invocation.getArgument(0);
             Message mes = messages.stream().filter(m ->
@@ -229,7 +163,7 @@ class MessageServiceImplTest {
             messages.remove(mes);
             return null;
         }).when(messageRepository).deleteById(any(Long.class));
-        messageService.deleteMessage(1L,2L);
+        messageService.deleteMessage(toBeDeleted);
         Assertions.assertEquals(1, messages.size());
     }
 }

@@ -43,6 +43,16 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
     }
 
+    @Override
+    public User findById(Long id) throws UserRetrievalException {
+        try {
+            Optional<User> user = this.userRepository.findById(id);
+            return user.orElseThrow(() -> new UserNotFoundException("User with that login not found."));
+        } catch (final Exception e) {
+            throw new UserRetrievalException("Could not retrieve user by login", e);
+        }
+    }
+
 
     @Override
     public User addUser(User user) throws UsernameAlreadyExistsException, UserAdditionException {

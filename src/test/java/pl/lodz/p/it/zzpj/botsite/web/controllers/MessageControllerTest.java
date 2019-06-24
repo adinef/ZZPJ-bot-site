@@ -46,6 +46,9 @@ public class MessageControllerTest {
     @Mock
     MessageService messageService;
 
+    @Mock
+    UserService userService;
+
     private Gson gson = new Gson();
 
     @Mock
@@ -76,16 +79,15 @@ public class MessageControllerTest {
         Message message = Message
                 .builder()
                 .id(id)
-                .user(user)
                 .content("message")
                 .build();
         MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
         String json = gson.toJson(dto);
 
         when(this.modelMapper.map(message, MessageDTO.class)).thenReturn(dto);
+        when(this.userService.findByLogin(any())).thenReturn(user);
         when(this.modelMapper.map(dto, Message.class)).thenReturn(message);
-        when(this.principal.getUserId()).thenReturn(0L);
-        when(messageService.addMessage(any(), any())).thenReturn(message);
+        when(messageService.addMessage(any())).thenReturn(message);
 
         mockMvc.perform(
                 post("/api/messages")
@@ -93,38 +95,9 @@ public class MessageControllerTest {
                         .content(json)
         ).andExpect(status().isCreated());
 
-        verify(messageService).addMessage(any(Long.class), any(Message.class));
+        verify(messageService).addMessage(any());
     }
 
-    @Test
-    public void createMessageShouldNotWorkWhenExceptionIsThrown() throws Exception {
-        Long id = 0L;
-        User user = User
-                .builder()
-                .id(id)
-                .build();
-        Message message = Message
-                .builder()
-                .id(id)
-                .user(user)
-                .content(" ")
-                .build();
-        MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
-        String json = gson.toJson(dto);
-
-        when(this.modelMapper.map(dto, Message.class)).thenReturn(message);
-        when(this.principal.getUserId()).thenReturn(1L);
-        when(messageService.addMessage(any(), any())).thenThrow(MessageAdditionException.class);
-
-        Assertions.assertThrows(NestedServletException.class, () -> mockMvc.perform(
-                post("/api/messages")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(json))
-                .andExpect(status().isOk())
-        );
-
-        verify(messageService).addMessage(any(Long.class), any(Message.class));
-    }
 
     @Test
     public void getAllMessagesForCurrentUserShouldWorkAsExpected() throws Exception {
@@ -143,7 +116,7 @@ public class MessageControllerTest {
                 .user(user)
                 .build());
         when(principal.getUserId()).thenReturn(user.getId());
-        when(messageService.getAllByUserId(any())).thenReturn(messages);
+        when(messageService.findAllByUserId(any())).thenReturn(messages);
         List<MessageDTO> dtos = new ArrayList<>();
         this.realModelMapper.map(messages, dtos);
         String json = gson.toJson(dtos);
@@ -152,7 +125,7 @@ public class MessageControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
         ).andExpect(status().isOk());
-        verify(messageService).getAllByUserId(any(Long.class));
+        verify(messageService).findAllByUserId(any(Long.class));
     }
 
     @Test
@@ -166,14 +139,13 @@ public class MessageControllerTest {
                 .user(user)
                 .build();
         when(principal.getUserId()).thenReturn(user.getId());
-        when(messageService.getSingleMessageForUserById(any(),any())).thenReturn(message);
-        MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
+        when(messageService.findById(any())).thenReturn(message);
         mockMvc.perform(
                 get("/api/messages/1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("")
         ).andExpect(status().isOk());
-        verify(messageService).getSingleMessageForUserById(any(Long.class),any(Long.class));
+        verify(messageService).findById(any(Long.class));
     }
 
     @Test
@@ -181,7 +153,6 @@ public class MessageControllerTest {
         User user = User.builder()
                 .id(1L)
                 .build();
-        when(principal.getUserId()).thenReturn(user.getId());
         Message editedMessage = Message.builder()
                 .id(2L)
                 .content("blab")
@@ -189,20 +160,21 @@ public class MessageControllerTest {
                 .build();
         MessageDTO dto = this.realModelMapper.map(editedMessage, MessageDTO.class);
         String json = gson.toJson(dto);
-        when(messageService.updateMessage(user.getId(), 2L, "blab")).thenReturn(editedMessage);
+        when(principal.getUserId()).thenReturn(user.getId());
+        when(messageService.findById(any())).thenReturn(editedMessage);
+        when(messageService.updateMessage(editedMessage)).thenReturn(editedMessage);
         mockMvc.perform(
                 put("/api/messages/2")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
         ).andExpect(status().isOk());
 
-        verify(messageService).updateMessage(any(Long.class), any(Long.class), any(String.class));
+        verify(messageService).updateMessage(any());
     }
 
     @Test
     public void deleteMessageShouldWorkAsExpected() throws Exception {
         List<Message> messages = new ArrayList<>();
-
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -218,13 +190,13 @@ public class MessageControllerTest {
                 .user(user)
                 .build());
         doAnswer(invocation -> {
-            Object arg1 = invocation.getArgument(1);
+            Object arg1 = invocation.getArgument(0);
             Message mes = messages.stream().filter(m ->
-                    m.getId().longValue() == ((Long) arg1).longValue()).findFirst().get();
-            Assertions.assertFalse(mes == null);
+                    m.getId().longValue() == ((Message) arg1).getId().longValue()).findFirst().get();
             messages.remove(mes);
             return null;
-        }).when(messageService).deleteMessage(any(Long.class), any(Long.class));
+        }).when(messageService).deleteMessage(any());
+        when(messageService.findById(any())).thenReturn(toBeDeleted);
         when(principal.getUserId()).thenReturn(user.getId());
         MessageDTO dto = this.realModelMapper.map(toBeDeleted, MessageDTO.class);
         String json = gson.toJson(dto);
@@ -235,7 +207,7 @@ public class MessageControllerTest {
                         .content(json))
                 .andDo(print())
                 .andExpect(status().isOk());
-        verify(messageService).deleteMessage(any(Long.class), any(Long.class));
+        verify(messageService).deleteMessage(any());
         Assertions.assertEquals(1, messages.size());
     }
 }
