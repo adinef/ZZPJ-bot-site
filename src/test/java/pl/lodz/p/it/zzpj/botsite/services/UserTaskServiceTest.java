@@ -97,30 +97,8 @@ class UserTaskServiceTest {
                 .id(1L)
                 .reminderDate(LocalDateTime.now().plusDays(1))
                 .build();
-        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
         when(userTaskRepository.save(task)).thenReturn(task);
-        Assertions.assertEquals(task, userTaskService.update(1L,task));
+        Assertions.assertEquals(task, userTaskService.update(task));
     }
 
-    @Test
-    void updateShouldThrowWhenTaskByIdNotFound() {
-        UserTask task = UserTask
-                .builder()
-                .id(1L)
-                .reminderDate(LocalDateTime.now().plusDays(1))
-                .build();
-        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.empty());
-        Assertions.assertThrows(UserTaskUpdateException.class, () -> userTaskService.update(null,task));
-    }
-
-    @Test
-    void updateDateShouldThrowDateTimeException() {
-        LocalDateTime today = LocalDateTime.now();
-        UserTask task = UserTask
-                .builder()
-                .id(1L)
-                .reminderDate(today.minusDays(1))
-                .build();
-        Assertions.assertThrows(DateTimeException.class, () -> userTaskService.update(null,task));
-    }
 }

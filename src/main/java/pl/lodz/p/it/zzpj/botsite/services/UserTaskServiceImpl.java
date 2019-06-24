@@ -69,19 +69,11 @@ public class UserTaskServiceImpl implements UserTaskService {
     }
 
     @Override
-    public UserTask update(Long userId, UserTask userTask) throws UserTaskUpdateException {
-        if (userTask.getReminderDate().isBefore(LocalDateTime.now())) {
-            throw new DateTimeException("Cannot set reminder to this date");
-        }
+    public UserTask update(UserTask userTask) throws UserTaskUpdateException {
         try {
-            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
-            task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
-            if(!task.get().getUser().getId().equals(userId)) {
-                throw new UserTaskNotFoundException("Task with that ID not found.");
-            }
             return this.userTaskRepository.save(userTask);
         } catch (final Exception e) {
-            throw new UserTaskUpdateException("Task could not be updated.", e);
+            throw new UserTaskUpdateException("User task could not be updated.", e);
         }
     }
 }
