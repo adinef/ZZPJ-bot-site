@@ -1,5 +1,6 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/api/usertaskAdmin")
 public class UserTaskAdminController {
 
@@ -56,11 +58,11 @@ public class UserTaskAdminController {
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public UserTaskAdminDTO getTaskByUserId(@PathVariable("id") final Long taskId)
             throws UserTaskRetrievalException {
         UserTask userTask = userTaskService.findById(taskId);
-        UserTaskAdminDTO userTaskAdminDTOS = modelMapper.map(userTask, UserTaskAdminDTO.class);
-        return userTaskAdminDTOS;
+        return modelMapper.map(userTask, UserTaskAdminDTO.class);
     }
 
     // ADD TASK
