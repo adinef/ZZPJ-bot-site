@@ -1,6 +1,8 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -61,7 +64,7 @@ class UserTaskAdminControllerTest {
     void getAllByUserId() throws Exception {
         List<UserTaskAdminDTO> userTaskAdminDTOS = new ArrayList<>();
         List<UserTask> userTaskList = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         String c = LocalDateTime.now().format(formatter);
         String r = LocalDateTime.now().plusDays(2).format(formatter);
         LocalDateTime cr = LocalDateTime.parse(c,formatter);
@@ -111,7 +114,7 @@ class UserTaskAdminControllerTest {
 
     @Test
     void getTaskByUserId() throws Exception {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         String c = LocalDateTime.now().format(formatter);
         String r = LocalDateTime.now().plusDays(2).format(formatter);
         LocalDateTime cr = LocalDateTime.parse(c,formatter);
@@ -161,6 +164,8 @@ class UserTaskAdminControllerTest {
         Long id = 0L;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         Bot bot = Bot.builder()
                 .id(id)
                 .name("FirstBot")
@@ -191,11 +196,10 @@ class UserTaskAdminControllerTest {
         when(userTaskService.addUserTask(any())).thenReturn(userTask);
         when(this.modelMapper.map(dto, UserTask.class)).thenReturn(userTask);
         when(this.modelMapper.map(userTask, UserTaskAdminDTO.class)).thenReturn(dto);
-        String json = gson.toJson(dto);
         mockMvc.perform(
                 post("/api/usertaskAdmin")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
-                        .content(json)
+                        .content(objectMapper.writeValueAsString(dto))
         ).andExpect(status().isOk());
         verify(userTaskService).addUserTask(any(UserTask.class));
     }
