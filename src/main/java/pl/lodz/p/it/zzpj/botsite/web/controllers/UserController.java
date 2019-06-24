@@ -3,8 +3,10 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
@@ -25,7 +27,6 @@ import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserUpdateDto;
 import pl.lodz.p.it.zzpj.botsite.web.events.OnUserRegistrationCompleteEvent;
 
-import java.security.Principal;
 import java.time.LocalDateTime;
 
 @RestController
@@ -95,6 +96,7 @@ public class UserController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_USER')")
     public UserAccountDataDto getAccountData() throws UserRetrievalException {
         User loggedUser = this.userService.findByLogin(this.principalProvider.getName());
         return modelMapper.map(loggedUser, UserAccountDataDto.class);
