@@ -49,7 +49,7 @@ public class UserTaskAdminController {
         return userTaskUserDTOS;
     }
 
-    //GET SINGLE TASK
+    // GET SINGLE TASK
     @Secured("ROLE_ADMIN")
     @GetMapping(
             value = "/{id}",
@@ -88,6 +88,8 @@ public class UserTaskAdminController {
         UserTask updatedTask = this.userTaskService.update(userTask);
         return modelMapper.map(updatedTask, UserTaskUserDTO.class);
     }
+
+    // DELETE TASK
     @Secured("ROLE_ADMIN")
     @DeleteMapping(
             value = "/{id}")

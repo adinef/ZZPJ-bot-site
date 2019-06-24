@@ -50,7 +50,11 @@ public class UserTaskController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public List<UserTaskUserDTO> getAllByUserId(@PathVariable("userId") final Long userId)
-            throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
+            throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException, UserRetrievalException, UserTaskRetrievalException {
+        User user = this.userService.findByLogin(principalProvider.getName());
+        if (!user.getId().equals(userId)) {
+            throw new UserTaskRetrievalException("Can not get User Tasks");
+        }
         List<UserTaskUserDTO> userTaskUserDTOS = new ArrayList<>();
         List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(userId);
         modelMapper.map(userTaskList, userTaskUserDTOS);
@@ -64,9 +68,13 @@ public class UserTaskController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public UserTaskUserDTO getTaskByUserId(@PathVariable("id") final Long taskId)
-            throws UserTaskRetrievalException {
+            throws UserTaskRetrievalException, UserRetrievalException {
         UserTaskUserDTO userTaskUserDTOS = new UserTaskUserDTO();
         UserTask userTask = userTaskService.findById(taskId);
+        User user = this.userService.findByLogin(principalProvider.getName());
+        if (!userTask.getUser().getId().equals(user.getId())) {
+            throw new UserTaskRetrievalException("Can not get User Task");
+        }
         modelMapper.map(userTask, userTaskUserDTOS);
         return userTaskUserDTOS;
     }
@@ -101,6 +109,7 @@ public class UserTaskController {
         UserTask updatedTask = this.userTaskService.update(userTask);
         return modelMapper.map(updatedTask, UserTaskUserDTO.class);
     }
+
     @Secured("ROLE_USER")
     @DeleteMapping(
             value = "/{id}")
