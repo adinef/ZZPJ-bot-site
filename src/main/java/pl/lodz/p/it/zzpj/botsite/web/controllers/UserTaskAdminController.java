@@ -23,20 +23,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/usertask")
-public class UserTaskController {
+public class UserTaskAdminController {
 
     private final ModelMapper modelMapper;
     private final UserTaskService userTaskService;
 
     @Autowired
-    public UserTaskController(ModelMapper modelMapper,
+    public UserTaskAdminController(ModelMapper modelMapper,
                               UserTaskService userTaskService) {
         this.modelMapper = modelMapper;
         this.userTaskService = userTaskService;
     }
 
-    //SECURITY + GET ALL FOR USER
-    @Secured("ROLE_USER")
+    //GET ALL FOR USER
+    @Secured("ROLE_ADMIN")
     @GetMapping(
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -49,8 +49,8 @@ public class UserTaskController {
         return userTaskUserDTOS;
     }
 
-    //SECURITY + GET SINGLE TASK
-    @Secured("ROLE_USER")
+    //GET SINGLE TASK
+    @Secured("ROLE_ADMIN")
     @GetMapping(
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -63,8 +63,8 @@ public class UserTaskController {
         return userTaskUserDTOS;
     }
 
-    // SECURITY
-    @Secured("ROLE_USER")
+    // ADD TASK
+    @Secured("ROLE_ADMIN")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -75,8 +75,8 @@ public class UserTaskController {
         return modelMapper.map(addedUserTask, UserTaskUserDTO.class);
     }
 
-    // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
-    @Secured("ROLE_USER")
+    // UPDATE TASK
+    @Secured("ROLE_ADMIN")
     @PutMapping(
             value = "edit/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -88,7 +88,7 @@ public class UserTaskController {
         UserTask updatedTask = this.userTaskService.update(userTask);
         return modelMapper.map(updatedTask, UserTaskUserDTO.class);
     }
-    @Secured("ROLE_USER")
+    @Secured("ROLE_ADMIN")
     @DeleteMapping(
             value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
