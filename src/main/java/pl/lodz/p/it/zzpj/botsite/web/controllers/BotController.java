@@ -40,7 +40,7 @@ public class BotController {
         this.userService = userService;
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -54,7 +54,7 @@ public class BotController {
         return this.modelMapper.map(addedBot, BotCreationDTO.class);
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping (
             value = "",
             produces = MediaType.APPLICATION_JSON_VALUE

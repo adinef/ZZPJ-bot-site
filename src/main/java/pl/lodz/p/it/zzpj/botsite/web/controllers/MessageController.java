@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
@@ -45,7 +46,7 @@ public class MessageController {
     }
 
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
             value = "",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -58,7 +59,7 @@ public class MessageController {
         return MessageDTOs;
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
             value = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -72,7 +73,7 @@ public class MessageController {
         return modelMapper.map(message, MessageDTO.class);
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -89,7 +90,7 @@ public class MessageController {
         return modelMapper.map(addedMessage, MessageDTO.class);
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping(
             value = "{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -110,7 +111,7 @@ public class MessageController {
         return modelMapper.map(editedMessage, MessageDTO.class);
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping(
             value = "{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE

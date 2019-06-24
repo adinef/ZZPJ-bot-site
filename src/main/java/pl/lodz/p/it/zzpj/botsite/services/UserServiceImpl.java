@@ -19,7 +19,7 @@ import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import java.util.Arrays;
 import java.util.Optional;
 
-@Service("mongoUserService")
+@Service("userService")
 
 public class UserServiceImpl implements UserDetailsService, UserService {
 
