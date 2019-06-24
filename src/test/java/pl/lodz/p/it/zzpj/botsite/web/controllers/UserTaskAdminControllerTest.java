@@ -17,6 +17,7 @@ import pl.lodz.p.it.zzpj.botsite.entities.Bot;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.UserTaskDeletionException;
 import pl.lodz.p.it.zzpj.botsite.services.UserTaskService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.usertasks.UserTaskAdminDTO;
 
@@ -27,10 +28,10 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -204,6 +205,11 @@ class UserTaskAdminControllerTest {
     }
 
     @Test
-    void deleteUserTask() {
+    void deleteUserTask() throws Exception {
+        doNothing().when(userTaskService).deleteUserTask(anyLong());
+        mockMvc.perform(
+                delete("/api/usertaskAdmin/0/")
+        ).andExpect(status().isOk());
+        verify(userTaskService).deleteUserTask(anyLong());
     }
 }
