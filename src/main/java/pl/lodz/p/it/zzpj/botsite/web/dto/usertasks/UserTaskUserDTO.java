@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 public class UserTaskUserDTO {
-    //ID USERA Z PRINCIPALA
+    private Long messageId;
+    private Long botId;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime creationDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

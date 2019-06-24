@@ -2,10 +2,12 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.UserTaskDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
@@ -85,5 +87,12 @@ public class UserTaskController {
         userTask.setId(id);
         UserTask updatedTask = this.userTaskService.update(userTask);
         return modelMapper.map(updatedTask, UserTaskUserDTO.class);
+    }
+    @Secured("ROLE_USER")
+    @DeleteMapping(
+            value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUserTask(@PathVariable("id") Long id) throws UserTaskDeletionException {
+        this.userTaskService.deleteUserTask(id);
     }
 }
