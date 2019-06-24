@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -15,9 +16,11 @@ import java.time.LocalDateTime;
 public class UserTaskUserDTO {
     private Long messageId;
     private Long botId;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
     private LocalDateTime reminderDate;
     private boolean isRepeatable;
     private boolean isDone;

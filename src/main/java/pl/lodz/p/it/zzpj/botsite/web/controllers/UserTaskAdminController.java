@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/usertask")
+@RequestMapping("/api/usertaskAdmin")
 public class UserTaskAdminController {
 
     private final ModelMapper modelMapper;
@@ -69,10 +69,10 @@ public class UserTaskAdminController {
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public UserTaskUserDTO addTask(@RequestBody UserTaskUserDTO userTaskUserDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
-        UserTask userTask = this.modelMapper.map(userTaskUserDTO, UserTask.class);
+    public UserTaskAdminDTO addTask(@RequestBody UserTaskAdminDTO userTaskAdminDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
+        UserTask userTask = this.modelMapper.map(userTaskAdminDTO, UserTask.class);
         UserTask addedUserTask = userTaskService.addUserTask(userTask);
-        return modelMapper.map(addedUserTask, UserTaskUserDTO.class);
+        return modelMapper.map(addedUserTask, UserTaskAdminDTO.class);
     }
 
     // UPDATE TASK
