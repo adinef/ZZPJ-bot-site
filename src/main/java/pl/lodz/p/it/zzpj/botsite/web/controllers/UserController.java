@@ -20,6 +20,7 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyE
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.StatusDto;
+import pl.lodz.p.it.zzpj.botsite.web.dto.UserAccountDataDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserUpdateDto;
 import pl.lodz.p.it.zzpj.botsite.web.events.OnUserRegistrationCompleteEvent;
@@ -91,6 +92,12 @@ public class UserController {
         this.userService.updateUser(updateUser, user.getId());
 
         return new StatusDto("Successfully updated");
+    }
+
+    @GetMapping
+    public UserAccountDataDto getAccountData() throws UserRetrievalException {
+        User loggedUser = this.userService.findByLogin(this.principalProvider.getName());
+        return modelMapper.map(loggedUser, UserAccountDataDto.class);
     }
 
 

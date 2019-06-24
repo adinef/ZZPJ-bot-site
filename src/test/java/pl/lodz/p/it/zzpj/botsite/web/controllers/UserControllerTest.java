@@ -12,21 +12,20 @@ import org.modelmapper.ModelMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
+import pl.lodz.p.it.zzpj.botsite.web.dto.UserAccountDataDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserRegistrationDto;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserUpdateDto;
 
-import java.security.Principal;
 import java.util.ArrayList;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
@@ -76,7 +75,7 @@ public class UserControllerTest {
                 post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-        ).andExpect(status().isOk());
+        ).andExpect(MockMvcResultMatchers.status().isOk());
         verify(userService).registerUser(any(User.class));
     }
 
@@ -126,9 +125,32 @@ public class UserControllerTest {
                 put("/api/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-        ).andExpect(status().isOk());
+        ).andExpect(MockMvcResultMatchers.status().isOk());
 
         verify(userService).updateUser(updateUser, userBeforeUpdate.getId());
+
+    }
+
+    @Test
+    public void getAccountDataShouldWorkAsExpected() throws Exception {
+        User loggedUser = User
+                .builder()
+                .login("Login")
+                .name("Name")
+                .lastName("Lastname")
+                .build();
+
+        UserAccountDataDto userAccountDataDto = realModelMapper.map(loggedUser, UserAccountDataDto.class);
+
+        when(principalProvider.getName()).thenReturn(loggedUser.getLogin());
+        when(userService.findByLogin(loggedUser.getLogin())).thenReturn(loggedUser);
+        spy(modelMapperMock).map(loggedUser, UserUpdateDto.class);
+
+        String accountDataJSON = gson.toJson(userAccountDataDto);
+
+         mockMvc.perform(get("/api/user"))
+                 .andExpect(MockMvcResultMatchers.content().json(accountDataJSON))
+                 .andExpect(MockMvcResultMatchers.status().isOk());
 
     }
 
