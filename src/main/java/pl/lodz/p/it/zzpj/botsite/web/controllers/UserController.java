@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.VerificationTokenInfo;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.NotFoundException;
@@ -36,15 +37,20 @@ public class UserController {
     private final VerificationTokenService verificationTokenService;
     private final ApplicationEventPublisher eventPublisher;
 
+    private final PrincipalProvider principalProvider;
+
     @Autowired
     public UserController(ModelMapper modelMapper,
                           UserService userService,
                           VerificationTokenService verificationTokenService,
-                          ApplicationEventPublisher applicationEventPublisher) {
+                          ApplicationEventPublisher applicationEventPublisher,
+                          PrincipalProvider principalProvider
+    ) {
         this.modelMapper = modelMapper;
         this.userService = userService;
         this.eventPublisher = applicationEventPublisher;
         this.verificationTokenService = verificationTokenService;
+        this.principalProvider = principalProvider;
     }
 
     @PostMapping(
@@ -76,10 +82,10 @@ public class UserController {
     }
 
     @PutMapping
-    public StatusDto updateOwnAccount(@RequestBody UserUpdateDto userUpdateDto, Principal principal)
+    public StatusDto updateOwnAccount(@RequestBody UserUpdateDto userUpdateDto)
             throws UserRetrievalException, UserUpdateException {
 
-        User user = this.userService.findByLogin(principal.getName());
+        User user = this.userService.findByLogin(principalProvider.getName());
         User updateUser = modelMapper.map(userUpdateDto, User.class);
         updateUser.setLogin(user.getLogin());
         this.userService.updateUser(updateUser, user.getId());

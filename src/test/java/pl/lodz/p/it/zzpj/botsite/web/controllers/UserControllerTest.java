@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.VerificationTokenService;
@@ -48,8 +49,7 @@ public class UserControllerTest {
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Mock
-    private Principal principal;
-
+    private PrincipalProvider principalProvider;
 
     private ModelMapper realModelMapper = new ModelMapper();
     private Gson gson = new Gson();
@@ -117,7 +117,7 @@ public class UserControllerTest {
 
         String json = gson.toJson(updateDto);
 
-        when(principal.getName()).thenReturn(userBeforeUpdate.getLogin());
+        when(principalProvider.getName()).thenReturn(userBeforeUpdate.getLogin());
         when(userService.findByLogin(userBeforeUpdate.getLogin())).thenReturn(userBeforeUpdate);
         spy(modelMapperMock).map(updateDto, userBeforeUpdate);
 
@@ -126,7 +126,6 @@ public class UserControllerTest {
                 put("/api/user")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-                        .principal(this.principal)
         ).andExpect(status().isOk());
 
         verify(userService).updateUser(updateUser, userBeforeUpdate.getId());
