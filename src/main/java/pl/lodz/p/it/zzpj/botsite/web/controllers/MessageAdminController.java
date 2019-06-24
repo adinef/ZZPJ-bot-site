@@ -3,6 +3,7 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,6 +42,7 @@ public class MessageAdminController {
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public List<MessageDTO> getAllMessagesByUserId(@PathVariable("userId") final Long userId)
             throws MessageRetrievalException {
         List<MessageDTO> MessageDTOs = new ArrayList<>();
@@ -54,6 +56,7 @@ public class MessageAdminController {
             value = "user/{userId}/message/{messageId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public List<MessageDTO> getUsersMessageById(@PathVariable("userId") final Long userId,
                                                 @PathVariable("messageId") final Long messageId)
             throws MessageRetrievalException {
@@ -69,6 +72,7 @@ public class MessageAdminController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public MessageDTO editMessageForUser(@PathVariable("userId") Long userId, @PathVariable("messageId") Long messageId,
                                          @RequestBody MessageDTO messageDto) throws MessageNotFoundException, MessageUpdateException {
         Message editedMessage = messageService.updateMessage(userId, messageId, messageDto.getContent());
@@ -80,6 +84,7 @@ public class MessageAdminController {
             value = "user/{userId}/message/{messageId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public void deleteMessageForUser(@PathVariable("userId") Long userId, @PathVariable("messageId") Long messageId) throws MessageDeletionException {
         messageService.deleteMessage(userId, messageId);
     }

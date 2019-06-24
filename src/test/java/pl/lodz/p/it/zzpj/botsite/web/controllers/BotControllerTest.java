@@ -71,7 +71,7 @@ public class BotControllerTest {
                 post("/api/bot/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-        ).andExpect(status().isOk());
+        ).andExpect(status().isCreated());
 
         verify(botService).addBot(any(Bot.class));
 

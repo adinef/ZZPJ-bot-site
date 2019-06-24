@@ -2,6 +2,7 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +49,7 @@ public class UserTaskController {
             value = "",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public List<UserTaskDTO> getAllTaskForCurrentUser()
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
         List<UserTaskDTO> userTaskDTOs = new ArrayList<>();
@@ -61,6 +63,7 @@ public class UserTaskController {
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public List<UserTaskDTO> getAllByUserId(@PathVariable("userId") final Long userId)
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
         List<UserTaskDTO> userTaskDTOs = new ArrayList<>();
@@ -75,6 +78,7 @@ public class UserTaskController {
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public UserTaskDTO addTask(@RequestBody UserTaskDTO userTaskDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
         UserTask userTask = this.modelMapper.map(userTaskDTO, UserTask.class);
         userTask.setUser(((MyUserDetails)principalProvider.getPrincipal()).getUser());
@@ -89,6 +93,7 @@ public class UserTaskController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ResponseStatus(HttpStatus.OK)
     public UserTaskDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskDTO userTaskDTO) throws UserTaskUpdateException {
         UserTask userTask = this.modelMapper.map(userTaskDTO, UserTask.class);
         userTask.setId(id);

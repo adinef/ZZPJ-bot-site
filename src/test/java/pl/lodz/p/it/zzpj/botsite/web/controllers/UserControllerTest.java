@@ -66,7 +66,7 @@ public class UserControllerTest {
                 post("/api/user/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json)
-        ).andExpect(status().isOk());
+        ).andExpect(status().isCreated());
         verify(userService).registerUser(any(User.class));
     }
 

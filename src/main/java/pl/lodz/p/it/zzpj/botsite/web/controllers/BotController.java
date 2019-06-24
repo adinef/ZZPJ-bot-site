@@ -46,7 +46,7 @@ public class BotController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public BotCreationDTO createBot(@RequestBody BotCreationDTO dto) throws BotAlreadyExistsException, BotAdditionException, UserRetrievalException {
         Bot bot = this.modelMapper.map(dto, Bot.class);
         bot.setUser(userService.findByLogin(principalProvider.getName()));
