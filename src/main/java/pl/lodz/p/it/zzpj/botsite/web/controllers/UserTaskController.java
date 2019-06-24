@@ -12,6 +12,7 @@ import pl.lodz.p.it.zzpj.botsite.entities.UserRole;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
@@ -20,9 +21,11 @@ import pl.lodz.p.it.zzpj.botsite.services.UserTaskService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import pl.lodz.p.it.zzpj.botsite.web.dto.UserTaskDTO;
 
+import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static pl.lodz.p.it.zzpj.botsite.entities.UserRole.SECURITY_ROLE;
 
@@ -87,6 +90,7 @@ public class UserTaskController {
     }
 
     // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
+    //TODO
     @Secured("ROLE_USER")
     @PutMapping(
             value = "edit/{id}",
@@ -94,11 +98,18 @@ public class UserTaskController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public UserTaskDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskDTO userTaskDTO) throws UserTaskUpdateException {
-        UserTask userTask = this.modelMapper.map(userTaskDTO, UserTask.class);
-        userTask.setId(id);
-        userTask.setUser(((MyUserDetails)principalProvider.getPrincipal()).getUser());
-        UserTask updatedTask = this.userTaskService.update(principalProvider.getUserId(), userTask);
+    public UserTaskDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskDTO userTaskDTO) throws UserTaskUpdateException, UserTaskRetrievalException {
+        //TODO -> OTHER VALIDATION STUFF?
+        /*if (userTaskDTO.getReminderDate().isBefore(LocalDateTime.now())) {
+            throw new DateTimeException("Cannot set reminder to this date");
+        }*/
+        UserTask task = this.userTaskService.findById(0L);//userTaskDTO.getId());
+        if(!task.getUser().getId().equals(principalProvider.getUserId())) {
+            throw new UserTaskUpdateException("You are not authorized to edit someone else's task");
+        }
+        //TODO -> SET DTO VALUES HERE
+        UserTask updatedTask = this.userTaskService.update(task);
         return modelMapper.map(updatedTask, UserTaskDTO.class);
     }
+
 }
