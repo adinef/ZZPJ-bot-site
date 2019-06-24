@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BotViewDTO {
-    Long id;
+public class BotEditDTO {
     String name;
     String channel;
 }

@@ -135,5 +135,4 @@ public class UserServiceImpl implements UserDetailsService, UserService {
             throw new UsernameAlreadyExistsException("Username is already taken");
         }
     }
-
 }
