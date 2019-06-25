@@ -42,7 +42,7 @@ public class User implements Serializable {
     private String password;
 
     @NotNull
-    private boolean active;
+    private boolean active = false;
 
     @ElementCollection(fetch = FetchType.EAGER)
     private List<UserRole> roles = new ArrayList<>();

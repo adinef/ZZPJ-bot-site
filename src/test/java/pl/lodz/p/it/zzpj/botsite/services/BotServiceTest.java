@@ -10,20 +10,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.BotDeletionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotAdditionException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotAdditionException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotUpdateException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.BotRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BotServiceTest {
@@ -85,47 +87,12 @@ class BotServiceTest {
     }
 
     @Test
-    void findAllShouldThrowRetrievalExceptionOnError() {
-        when(botRepository.findAll()).thenThrow(RuntimeException.class);
-        Assertions.assertThrows(BotRetrievalException.class, () -> botService.findAll());
+    void findByUserIdShouldThrowRightExceptionWhenNoBotsFound() {
+        when(userRepository.findById(any())).thenReturn(Optional.of(new User()));
+        when(botRepository.findAllByUser(any())).thenReturn(Collections.emptyList());
+        Assertions.assertThrows(BotRetrievalException.class, () -> botService.findAllForUserId(1L));
     }
 
-    @Test
-    void findAllShouldReturnRightAmount() throws BotRetrievalException {
-        when(botRepository.findAll()).thenReturn(
-                Arrays.asList(mock(Bot.class), mock(Bot.class))
-        );
-        Assertions.assertEquals(2, botService.findAll().size());
-    }
-
-    @Test
-    void findAllShouldReturnEmptyListOnNoneFound() throws BotRetrievalException {
-        when(botRepository.findAll()).thenReturn(
-                Collections.emptyList()
-        );
-        Assertions.assertEquals(0, botService.findAll().size());
-    }
-    @Test
-    void findAllForNameShouldThrowRetrievalExceptionOnError() {
-        when(botRepository.findAllByName(anyString())).thenThrow(RuntimeException.class);
-        Assertions.assertThrows(BotRetrievalException.class, () -> botService.findAllForName("test"));
-    }
-
-    @Test
-    void findAllForNameShouldReturnRightAmount() throws BotRetrievalException {
-        when(botRepository.findAllByName(anyString())).thenReturn(
-                Arrays.asList(mock(Bot.class), mock(Bot.class))
-        );
-        Assertions.assertEquals(2, botService.findAllForName("test").size());
-    }
-
-    @Test
-    void findAllForNameShouldReturnEmptyListOnNoneFound() throws BotRetrievalException {
-        when(botRepository.findAllByName(anyString())).thenReturn(
-                Collections.emptyList()
-        );
-        Assertions.assertEquals(0, botService.findAllForName("test").size());
-    }
 
     @Test
     void addBotShouldAddBot() throws BotAlreadyExistsException, BotAdditionException {
@@ -136,20 +103,12 @@ class BotServiceTest {
 
     @Test
     void addBotShouldThrowBotAlreadyExistsException(){
-        User user = User.builder().login("test").build();
-        Bot bot = Bot.builder().id(1L).name("FirstBot").channel("FirstChannel").user(user).build();
-        when(this.botRepository.findAllByUser(any())).thenReturn(Collections.singletonList(bot));
+        Bot bot = Bot.builder().id(1L).name("FirstBot").channel("FirstChannel").build();
         Assertions.assertThrows(BotAdditionException.class, () -> botService.addBot(bot));
     }
 
     @Test
-    void addBotShouldThrowOnRetrievalException(){
-        when(botRepository.save(any())).thenThrow(RuntimeException.class);
-        Assertions.assertThrows(BotAdditionException.class, () -> botService.addBot(new Bot()));
-    }
-
-    @Test
-    void updateBotNameShouldUpdateBotName() throws BotUpdateException {
+    void updateBotNameShouldUpdateBotName() throws BotRetrievalException, BotNotFoundException {
         Long id = 0L;
         Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         when(botRepository.findById(id)).thenReturn(Optional.of(bot));
@@ -161,11 +120,11 @@ class BotServiceTest {
     void updateBotNameShouldThrowBotNotFoundException(){
         Long id = 0L;
         Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
-        Assertions.assertThrows(BotUpdateException.class, () -> botService.updateBotName(id,"NewName"));
+        Assertions.assertThrows(BotNotFoundException.class, () -> botService.updateBotName(id,"NewName"));
     }
 
     @Test
-    void updateBotChannelShouldUpdateBotChannel() throws BotUpdateException {
+    void updateBotChannelShouldUpdateBotChannel() throws BotNotFoundException {
         Long id = 0L;
         Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
         when(botRepository.findById(id)).thenReturn(Optional.of(bot));
@@ -177,7 +136,7 @@ class BotServiceTest {
     void updateBotChannelShouldThrowBotNotFoundException(){
         Long id = 0L;
         Bot bot = Bot.builder().id(id).name("FirstBot").channel("FirstChannel").build();
-        Assertions.assertThrows(BotUpdateException.class, () -> botService.updateBotChannel(id,"NewChannel"));
+        Assertions.assertThrows(BotNotFoundException.class, () -> botService.updateBotChannel(id,"NewChannel"));
     }
 
     @Test

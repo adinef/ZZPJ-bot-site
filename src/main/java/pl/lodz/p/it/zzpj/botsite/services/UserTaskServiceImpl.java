@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Service("userTaskService")
+@Service("mongoUserTaskService")
 public class UserTaskServiceImpl implements UserTaskService {
 
     private final UserTaskRepository userTaskRepository;
@@ -64,10 +64,15 @@ public class UserTaskServiceImpl implements UserTaskService {
 
     @Override
     public UserTask update(UserTask userTask) throws UserTaskUpdateException {
+        if (userTask.getReminderDate().isBefore(LocalDateTime.now())) {
+            throw new DateTimeException("Cannot set reminder to this date");
+        }
         try {
+            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
+            task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
             return this.userTaskRepository.save(userTask);
         } catch (final Exception e) {
-            throw new UserTaskUpdateException("User task could not be updated.", e);
+            throw new UserTaskUpdateException("Task could not be updated.", e);
         }
     }
 

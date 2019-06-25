@@ -2,8 +2,6 @@ package pl.lodz.p.it.zzpj.botsite.config.security;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import pl.lodz.p.it.zzpj.botsite.entities.User;
-import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 
 import java.security.Principal;
 
@@ -18,7 +16,4 @@ public class PrincipalProviderImpl implements PrincipalProvider {
     public String getName() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
-
-    @Override
-    public Long getUserId() { return ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId(); }
 }

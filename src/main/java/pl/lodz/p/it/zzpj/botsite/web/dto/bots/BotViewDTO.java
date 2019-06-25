@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class BotViewDTO {
-    Long id;
     String name;
     String channel;
 }

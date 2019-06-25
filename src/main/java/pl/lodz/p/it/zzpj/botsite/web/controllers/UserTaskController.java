@@ -5,7 +5,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
@@ -47,6 +47,7 @@ public class UserTaskController {
     }
 
     //SECURITY + GET ALL FOR USER
+<<<<<<< HEAD
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
             value = "",
@@ -62,6 +63,9 @@ public class UserTaskController {
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
+=======
+    @Secured("ROLE_USER")
+>>>>>>> parent of 52e3a9c... Merge branch 'master' into 166672013-warstwa-kontrolerow-(taski)
     @GetMapping(
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -93,7 +97,7 @@ public class UserTaskController {
     }
 
     // SECURITY
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @Secured("ROLE_USER")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -107,8 +111,7 @@ public class UserTaskController {
     }
 
     // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
-    //TODO
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @Secured("ROLE_USER")
     @PutMapping(
             value = "edit/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -142,5 +145,4 @@ public class UserTaskController {
         userTasks.forEach(b -> this.modelMapper.map(b, UserTaskUserDTO.class));
         return dtoList;
     }
-
 }
