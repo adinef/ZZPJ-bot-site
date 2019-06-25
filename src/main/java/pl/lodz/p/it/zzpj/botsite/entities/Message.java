@@ -29,6 +29,7 @@ public class Message {
     @NotBlank
     private String content;
 
+    @NotNull
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "message")
     private List<UserTask> userTasks;
 }

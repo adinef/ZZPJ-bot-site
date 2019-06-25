@@ -9,16 +9,13 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.BotNotFoundException
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.BotRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotAdditionException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.BotUpdateException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.BotAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.BotRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service("botService")
+@Service("mongoBotService")
 public class BotServiceImpl implements BotService {
 
     private final BotRepository botRepository;
@@ -50,50 +47,21 @@ public class BotServiceImpl implements BotService {
             Optional<User> userById = this.userRepository.findById(id);
             User user = userById.orElseThrow(UserNotFoundException::new);
             List<Bot> bots = this.botRepository.findAllByUser(user);
-            return bots;
-        } catch (final Exception e) {
-            throw new BotRetrievalException("Could not retrieve bot by user's ID");
-        }
-    }
-
-    @Override
-    public List<Bot> findAll() throws BotRetrievalException {
-        try {
-            Iterable<Bot> bots = this.botRepository.findAll();
-            List<Bot> botsList = new ArrayList<>();
-            for (Bot bot : bots) {
-                botsList.add(bot);
+            if (bots == null || bots.isEmpty()) {
+                throw new BotNotFoundException("Bot for that user not found.");
             }
-            return botsList;
-        } catch (final Exception e) {
-            throw new BotRetrievalException("Could not retrieve bots", e);
-        }
-    }
-
-    @Override
-    public List<Bot> findAllForName(String name) throws BotRetrievalException {
-        try {
-            List<Bot> bots = this.botRepository.findAllByName(name);
             return bots;
         } catch (final Exception e) {
-            throw new BotRetrievalException("Could not retrieve bots", e);
+            throw new BotRetrievalException("Could not retrieve bot by user's ID", e);
         }
     }
 
     @Override
     public Bot addBot(Bot bot) throws BotAdditionException {
+        if (bot.getId() != null) {
+            throw new BotAdditionException("Cannot add element with id specified.");
+        }
         try {
-            List<Bot> allByUser = this.botRepository.findAllByUser(bot.getUser());
-            if (allByUser
-                    .stream()
-                    .anyMatch(
-                            e ->
-                                    ( e.getUser().getLogin() + ":" + e.getName() )
-                                            .equals(bot.getUser().getLogin() + ":" + bot.getName())
-                    )
-            ) {
-                throw new BotAlreadyExistsException("Bot for user already exists.");
-            }
             return this.botRepository.save(bot);
         } catch (final Exception e){
             throw new BotAdditionException("Error occurred during addition of bot.", e);
@@ -101,26 +69,26 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public Bot updateBotName(Long id, String name) throws BotUpdateException {
+    public Bot updateBotName(Long id, String name) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
             Bot botRetrieved = bot.orElseThrow(() -> new BotNotFoundException("Bot with that ID not found."));
             botRetrieved.setName(name);
             return this.botRepository.save(botRetrieved);
         } catch (final Exception e) {
-            throw new BotUpdateException("Could nto update bot", e);
+            throw new BotNotFoundException("Bot with that ID not found.", e);
         }
     }
 
     @Override
-    public Bot updateBotChannel(Long id, String channel) throws BotUpdateException {
+    public Bot updateBotChannel(Long id, String channel) throws BotNotFoundException {
         try {
             Optional<Bot> bot = this.botRepository.findById(id);
             Bot botRetrieved = bot.orElseThrow(() -> new BotNotFoundException("Bot with that ID not found."));
             botRetrieved.setChannel(channel);
             return this.botRepository.save(botRetrieved);
         } catch (final Exception e) {
-            throw new BotUpdateException("Could nto update bot", e);
+            throw new BotNotFoundException("Bot with that ID not found.", e);
         }
     }
 

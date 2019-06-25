@@ -6,21 +6,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserAdditionException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UsernameAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserRepository;
 import pl.lodz.p.it.zzpj.botsite.repositories.VerificationTokenRepository;
 
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -141,173 +138,34 @@ class UserServiceImplTest {
     }
 
 
+
     @Test
-    void updateUserShouldWorkAsExpected() throws UserRetrievalException, UserUpdateException {
-
-
-        String pass = "ValidLogin";
+    void updateUserShouldWorkAsExpected() throws UserRetrievalException {
         User user = User
                 .builder()
-                .id(Long.valueOf(99))
-                .login(pass)
+                .login("ValidLogin")
+                .password("ValidPassword")
                 .email("ValidEmail@hmail.com")
                 .build();
 
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.of(user));
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-
-        userService.updateUser(user, user.getId());
-
+        userService.updateUser(user);
         verify(userRepository).save(user);
     }
 
     @Test
-    void updateUserShouldThrowExceptionWhenUserNotFound() {
+    void updateUserThrowExceptionWhenUserNotFound() {
         User user = User
                 .builder()
                 .login("ValidLogin")
-                .id(Long.valueOf(99))
                 .password("ValidPassword")
                 .email("ValidEmail@hmail.com")
                 .build();
 
-        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+        when(userRepository.findByLogin(user.getLogin())).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(UserRetrievalException.class, () -> userService.updateUser(user, user.getId()));
+        Assertions.assertThrows(UserRetrievalException.class, () -> userService.updateUser(user));
     }
-
-    @Test
-    void updateUserShouldThrowExceptionWhenOtherUserWithGivenEmailAlreadyExists() {
-
-
-        User user = User
-                .builder()
-                .login("ValidLogin")
-                .id(Long.valueOf(99))
-                .password("ValidPassword")
-                .email("ValidEmail@hmail.com")
-                .build();
-
-        User otherUser = User
-                .builder()
-                .login("OtherLogin")
-                .password("Pass")
-                .email("otherEmail@hmail.com")
-                .build();
-
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(otherUser));
-
-        Assertions.assertThrows(UserUpdateException.class, () -> userService.updateUser(user, user.getId()));
-
-
-    }
-
-    @Test
-    void updateUserShouldNotThrowExceptionWhenEmailIsTheSame() {
-
-
-        User user = User
-                .builder()
-                .login("ValidLogin")
-                .id(Long.valueOf(99))
-                .password("ValidPassword")
-                .email("ValidEmail@hmail.com")
-                .build();
-
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-
-        Assertions.assertDoesNotThrow(() -> userService.updateUser(user, user.getId()));
-
-
-    }
-
-    @Test
-    void updateUserShouldHashPassword() throws UserRetrievalException, UserUpdateException {
-
-        String password = "ValidPassword";
-        String hashedPassword = "HASH";
-
-        User user = User
-                .builder()
-                .login("ValidLogin")
-                .id(Long.valueOf(99))
-                .password(password)
-                .email("ValidEmail@hmail.com")
-                .build();
-
-        User userWithHashedPwd = User
-                .builder()
-                .login(user.getLogin())
-                .id(user.getId())
-                .password(hashedPassword)
-                .email(user.getEmail())
-                .build();
-
-        when(passwordEncoder.encode(password)).thenReturn(hashedPassword);
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-
-        userService.updateUser(user, user.getId());
-
-        verify(passwordEncoder).encode(password);
-        verify(userRepository).save(userWithHashedPwd);
-
-
-    }
-
-    @Test
-    void updateUserShouldNotUpdatePasswordIfItIsNull() throws UserRetrievalException, UserUpdateException {
-        User user = User
-                .builder()
-                .id(Long.valueOf(99))
-                .login("ValidLogin")
-                .email("ValidEmail@hmail.com")
-                .build();
-
-        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
-
-        userService.updateUser(user, user.getId());
-
-        verify(userRepository).save(user);
-        verify(passwordEncoder, Mockito.never()).encode(any());
-    }
-
-    @Test
-    void updateUserShouldUpdateSinglePasswordField() throws UserRetrievalException, UserUpdateException {
-
-        String newPassword = "newPass";
-        String newPassHash = "newPassHash";
-
-        User oldUser = User
-                .builder()
-                .login("login")
-                .id(Long.valueOf(99))
-                .password("oldPassword")
-                .email("somemail@asd.net")
-                .build();
-
-        User user = User
-                .builder()
-                .password(newPassword)
-                .build();
-
-        User userToSave = User
-                .builder()
-                .id(oldUser.getId())
-                .login(oldUser.getLogin())
-                .password(newPassHash)
-                .email(oldUser.getEmail())
-                .build();
-
-
-        when(userRepository.findById(oldUser.getId())).thenReturn(Optional.of(oldUser));
-        when(passwordEncoder.encode(newPassword)).thenReturn(newPassHash);
-
-        userService.updateUser(user, oldUser.getId());
-
-        verify(userRepository).save(userToSave);
-    }
-
 
 }
