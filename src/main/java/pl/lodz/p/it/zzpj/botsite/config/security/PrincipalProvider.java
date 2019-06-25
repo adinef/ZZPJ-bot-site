@@ -5,4 +5,5 @@ import java.security.Principal;
 public interface PrincipalProvider {
     Principal getPrincipal();
     String getName();
+    Long getUserId();
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
+import java.beans.Transient;
+
 @AllArgsConstructor
 @NoArgsConstructor
 public class Error {
@@ -13,6 +15,12 @@ public class Error {
 
     @JsonIgnore
     private Exception exception;
+
+    @Transient
+    @JsonIgnore
+    public Exception getException() {
+        return this.exception;
+    }
 
     @JsonProperty("error")
     public String errorMessage() {

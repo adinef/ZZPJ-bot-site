@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.DeletionException;
@@ -16,8 +15,8 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.RetrievalTimeExcept
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.SavingException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.StateNotConsistentException;
 
-@RestControllerAdvice
-public class RestResponseEntityExceptionHandler{
+@ControllerAdvice
+public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
     private final HttpHeaders httpHeaders;
 
@@ -27,46 +26,32 @@ public class RestResponseEntityExceptionHandler{
     }
 
     @ExceptionHandler(value = {NotFoundException.class})
-    protected ResponseEntity<Error> handleNotFound(Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleNotFound(Exception ex, WebRequest request) {
         String resp = "Resource not found.";
-        return handleExceptionInternal(
-                new Error(resp, ex), HttpStatus.NOT_FOUND, httpHeaders
-        );
+        return handleExceptionInternal(ex, new Error(resp, ex), httpHeaders, HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(value = {RetrievalTimeException.class})
-    protected ResponseEntity<Error> handleCouldNotRetrieve(Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleCouldNotRetrieve(Exception ex, WebRequest request) {
         String resp = "Resource could not be retrieved.";
-        return handleExceptionInternal(
-                new Error(resp, ex), HttpStatus.NOT_FOUND, httpHeaders
-        );
+        return handleExceptionInternal(ex, new Error(resp, ex), httpHeaders, HttpStatus.BAD_REQUEST,request);
     }
 
     @ExceptionHandler(value = {StateNotConsistentException.class, IllegalArgumentException.class})
-    protected ResponseEntity<Error> handleNotConsistent(Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleNotConsistent(Exception ex, WebRequest request) {
         String resp = "Known resource did not match expectations.";
-        return handleExceptionInternal(
-                new Error(resp, ex), HttpStatus.NOT_FOUND, httpHeaders
-        );
+        return handleExceptionInternal(ex, new Error(resp, ex), httpHeaders, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(value = {DeletionException.class})
-    protected ResponseEntity<Error> handleDeletion(Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleDeletion(Exception ex, WebRequest request) {
         String resp = "Resource could not be removed.";
-        return handleExceptionInternal(
-                new Error(resp, ex), HttpStatus.NOT_FOUND, httpHeaders
-        );
+        return handleExceptionInternal(ex, new Error(resp, ex), httpHeaders, HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(value = {SavingException.class})
-    protected ResponseEntity<Error> handleSaving(Exception ex, WebRequest request) {
+    protected ResponseEntity<Object> handleSaving(Exception ex, WebRequest request) {
         String resp = "Error during resource saving.";
-        return handleExceptionInternal(
-                new Error(resp, ex), HttpStatus.NOT_FOUND, httpHeaders
-        );
-    }
-
-    private ResponseEntity<Error> handleExceptionInternal(Error error, HttpStatus status, HttpHeaders httpHeaders) {
-        return (ResponseEntity<Error>) new ResponseEntity(error, httpHeaders, status);
+        return handleExceptionInternal(ex, new Error(resp, ex), httpHeaders, HttpStatus.BAD_REQUEST, request);
     }
 }
