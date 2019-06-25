@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    public SecurityConfig(@Qualifier("mongoUserService") final UserDetailsService userDetailsService) {
+    public SecurityConfig(@Qualifier("userService") final UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
