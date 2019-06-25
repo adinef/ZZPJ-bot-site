@@ -1,6 +1,7 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,8 +57,9 @@ public class UserTaskController {
             throw new UserTaskRetrievalException("Can not get User Tasks");
         }
         List<UserTaskUserDTO> userTaskUserDTOS = new ArrayList<>();
+        java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskUserDTO>>() {}.getType();
         List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(userId);
-        modelMapper.map(userTaskList, userTaskUserDTOS);
+        modelMapper.map(userTaskList, targetListType);
         return userTaskUserDTOS;
     }
 
@@ -85,6 +87,7 @@ public class UserTaskController {
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public UserTaskUserDTO addTask(@RequestBody UserTaskUserDTO userTaskUserDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException, UserRetrievalException {
         UserTask userTask = this.modelMapper.map(userTaskUserDTO, UserTask.class);
         userTask.setUser(userService.findByLogin(principalProvider.getName()));

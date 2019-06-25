@@ -175,8 +175,6 @@ class UserTaskAdminControllerTest {
         when(userTaskService.findById(any())).thenReturn(userTask);
         when(modelMapper.map(userTask, UserTaskAdminDTO.class)).thenReturn(dto);
 
-
-
         mockMvc.perform(
                 get("/api/usertaskAdmin/0/")
         ).andExpect(status().isOk());
@@ -225,7 +223,7 @@ class UserTaskAdminControllerTest {
                 post("/api/usertaskAdmin")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(dto))
-        ).andExpect(status().isOk());
+        ).andExpect(status().isCreated());
         verify(userTaskService).addUserTask(any(UserTask.class));
     }
 

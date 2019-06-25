@@ -71,6 +71,7 @@ public class UserTaskAdminController {
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public UserTaskAdminDTO addTask(@RequestBody UserTaskAdminDTO userTaskAdminDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
         UserTask userTask = modelMapper.map(userTaskAdminDTO, UserTask.class);
         UserTask addedUserTask = userTaskService.addUserTask(userTask);

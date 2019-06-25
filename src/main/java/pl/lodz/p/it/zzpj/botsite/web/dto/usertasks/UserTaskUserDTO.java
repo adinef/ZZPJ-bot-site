@@ -17,10 +17,10 @@ public class UserTaskUserDTO {
     private Long messageId;
     private Long botId;
     @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-    @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="dd-MM-yyyy HH:mm:ss")
     private LocalDateTime creationDate;
     @DateTimeFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-    @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern="dd-MM-yyyy HH:mm:ss")
     private LocalDateTime reminderDate;
     private boolean isRepeatable;
     private boolean isDone;
