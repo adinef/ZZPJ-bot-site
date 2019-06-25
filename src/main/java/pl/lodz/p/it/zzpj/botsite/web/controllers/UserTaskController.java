@@ -52,14 +52,14 @@ public class UserTaskController {
     )
     public List<UserTaskUserDTO> getAllByUserId(@PathVariable("userId") final Long userId)
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException, UserRetrievalException, UserTaskRetrievalException {
-        User user = this.userService.findByLogin(principalProvider.getName());
+        User user = this.userService.findByLogin(this.principalProvider.getName());
         if (!user.getId().equals(userId)) {
             throw new UserTaskRetrievalException("Can not get User Tasks");
         }
         List<UserTaskUserDTO> userTaskUserDTOS = new ArrayList<>();
         java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskUserDTO>>() {}.getType();
-        List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(userId);
-        modelMapper.map(userTaskList, targetListType);
+        List<UserTask> userTaskList = this.userTaskService.getListOfUserTasksByUserId(userId);
+        this.modelMapper.map(userTaskList, targetListType);
         return userTaskUserDTOS;
     }
 
@@ -71,12 +71,12 @@ public class UserTaskController {
     )
     public UserTaskUserDTO getTaskByUserId(@PathVariable("id") final Long taskId)
             throws UserTaskRetrievalException, UserRetrievalException {
-        UserTask userTask = userTaskService.findById(taskId);
-        User user = this.userService.findByLogin(principalProvider.getName());
+        UserTask userTask = this.userTaskService.findById(taskId);
+        User user = this.userService.findByLogin(this.principalProvider.getName());
         if (!userTask.getUser().getId().equals(user.getId())) {
             throw new UserTaskRetrievalException("Can not get User Task");
         }
-        return modelMapper.map(userTask, UserTaskUserDTO.class);
+        return this.modelMapper.map(userTask, UserTaskUserDTO.class);
     }
 
     // SECURITY
@@ -88,9 +88,9 @@ public class UserTaskController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserTaskUserDTO addTask(@RequestBody UserTaskUserDTO userTaskUserDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException, UserRetrievalException {
         UserTask userTask = this.modelMapper.map(userTaskUserDTO, UserTask.class);
-        userTask.setUser(userService.findByLogin(principalProvider.getName()));
-        UserTask addedUserTask = userTaskService.addUserTask(userTask);
-        return modelMapper.map(addedUserTask, UserTaskUserDTO.class);
+        userTask.setUser(this.userService.findByLogin(this.principalProvider.getName()));
+        UserTask addedUserTask = this.userTaskService.addUserTask(userTask);
+        return this.modelMapper.map(addedUserTask, UserTaskUserDTO.class);
     }
 
     // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
@@ -102,13 +102,13 @@ public class UserTaskController {
     )
     public UserTaskUserDTO editTask(@PathVariable("id") Long id, @RequestBody UserTaskUserDTO userTaskUserDTO) throws UserTaskUpdateException, UserRetrievalException, UserTaskRetrievalException {
         UserTask userTask = this.modelMapper.map(userTaskUserDTO, UserTask.class);
-        User user = this.userService.findByLogin(principalProvider.getName());
-        if (!userTaskService.findById(id).getUser().getId().equals(user.getId())) {
+        User user = this.userService.findByLogin(this.principalProvider.getName());
+        if (!this.userTaskService.findById(id).getUser().getId().equals(user.getId())) {
             throw new UserTaskUpdateException("User task cannot be updated.");
         }
         userTask.setId(id);
         UserTask updatedTask = this.userTaskService.update(userTask);
-        return modelMapper.map(updatedTask, UserTaskUserDTO.class);
+        return this.modelMapper.map(updatedTask, UserTaskUserDTO.class);
     }
 
     @Secured("ROLE_USER")
@@ -116,8 +116,8 @@ public class UserTaskController {
             value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteUserTask(@PathVariable("id") Long id) throws UserTaskDeletionException, UserRetrievalException, UserTaskRetrievalException {
-        User user = this.userService.findByLogin(principalProvider.getName());
-        if (userTaskService.findById(id).getUser().getId().equals(user.getId())) {
+        User user = this.userService.findByLogin(this.principalProvider.getName());
+        if (this.userTaskService.findById(id).getUser().getId().equals(user.getId())) {
             this.userTaskService.deleteUserTask(id);
         } else {
             throw new UserTaskDeletionException("User task cannot be deleted.");

@@ -46,9 +46,9 @@ public class UserTaskAdminController {
     )
     public List<UserTaskAdminDTO> getAllByUserId(@PathVariable("userId") final Long userId)
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
-        List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(userId);
+        List<UserTask> userTaskList = this.userTaskService.getListOfUserTasksByUserId(userId);
         java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskAdminDTO>>() {}.getType();
-        List<UserTaskAdminDTO> userTaskAdminDTOS = modelMapper.map(userTaskList, targetListType);
+        List<UserTaskAdminDTO> userTaskAdminDTOS = this.modelMapper.map(userTaskList, targetListType);
         return userTaskAdminDTOS;
     }
 
@@ -61,8 +61,8 @@ public class UserTaskAdminController {
     @ResponseStatus(HttpStatus.OK)
     public UserTaskAdminDTO getTaskByUserId(@PathVariable("id") final Long taskId)
             throws UserTaskRetrievalException {
-        UserTask userTask = userTaskService.findById(taskId);
-        return modelMapper.map(userTask, UserTaskAdminDTO.class);
+        UserTask userTask = this.userTaskService.findById(taskId);
+        return this.modelMapper.map(userTask, UserTaskAdminDTO.class);
     }
 
     // ADD TASK
@@ -73,9 +73,9 @@ public class UserTaskAdminController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public UserTaskAdminDTO addTask(@RequestBody UserTaskAdminDTO userTaskAdminDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
-        UserTask userTask = modelMapper.map(userTaskAdminDTO, UserTask.class);
-        UserTask addedUserTask = userTaskService.addUserTask(userTask);
-        return modelMapper.map(addedUserTask, UserTaskAdminDTO.class);
+        UserTask userTask = this.modelMapper.map(userTaskAdminDTO, UserTask.class);
+        UserTask addedUserTask = this.userTaskService.addUserTask(userTask);
+        return this.modelMapper.map(addedUserTask, UserTaskAdminDTO.class);
     }
 
     // UPDATE TASK
@@ -89,7 +89,7 @@ public class UserTaskAdminController {
         UserTask userTask = this.modelMapper.map(userTaskAdminDTO, UserTask.class);
         userTask.setId(id);
         UserTask updatedTask = this.userTaskService.update(userTask);
-        return modelMapper.map(updatedTask, UserTaskAdminDTO.class);
+        return this.modelMapper.map(updatedTask, UserTaskAdminDTO.class);
     }
 
     // DELETE TASK
