@@ -37,9 +37,7 @@ public class UserTaskController {
 
     @Autowired
     public UserTaskController(ModelMapper modelMapper,
-                              UserTaskService userTaskService,
-                              PrincipalProvider principalProvider,
-                              UserService userService) {
+                              UserTaskService userTaskService, PrincipalProvider principalProvider, UserService userService) {
         this.modelMapper = modelMapper;
         this.userTaskService = userTaskService;
         this.principalProvider = principalProvider;
@@ -58,8 +56,11 @@ public class UserTaskController {
         if (!user.getId().equals(userId)) {
             throw new UserTaskRetrievalException("Can not get User Tasks");
         }
+        List<UserTaskUserDTO> userTaskUserDTOS = new ArrayList<>();
+        java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskUserDTO>>() {}.getType();
         List<UserTask> userTaskList = this.userTaskService.getListOfUserTasksByUserId(userId);
-        return mapList(userTaskList);
+        this.modelMapper.map(userTaskList, targetListType);
+        return userTaskUserDTOS;
     }
 
     //SECURITY + GET SINGLE TASK
@@ -122,9 +123,13 @@ public class UserTaskController {
             throw new UserTaskDeletionException("User task cannot be deleted.");
         }
     }
+<<<<<<< HEAD
     private List<UserTaskUserDTO> mapList(List<UserTask> userTasks) {
         List<UserTaskUserDTO> dtoList = new ArrayList<>();
         userTasks.forEach(b -> this.modelMapper.map(b, UserTaskUserDTO.class));
         return dtoList;
     }
 }
+=======
+}
+>>>>>>> parent of e362090... Fix DTO mapper

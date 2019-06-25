@@ -103,7 +103,10 @@ class UserTaskAdminControllerTest {
         userTaskList.add(userTask);
         UserTaskAdminDTO dto = this.realModelMapper.map(userTask, UserTaskAdminDTO.class);
         userTaskAdminDTOS.add(dto);
+
+        java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskAdminDTO>>() {}.getType();
         when(userTaskService.getListOfUserTasksByUserId(anyLong())).thenReturn(userTaskList);
+        when(modelMapper.map(userTaskList, targetListType)).thenReturn(userTaskAdminDTOS);
 
 
 
@@ -116,9 +119,14 @@ class UserTaskAdminControllerTest {
 
     @Test
     void getAllByUserIdShouldReturnEmptyResultWhenNotFound() throws Exception {
+        List<UserTaskAdminDTO> userTaskAdminDTOS = new ArrayList<>();
         List<UserTask> userTaskList = new ArrayList<>();
 
+        java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskAdminDTO>>() {}.getType();
         when(userTaskService.getListOfUserTasksByUserId(anyLong())).thenReturn(userTaskList);
+        when(modelMapper.map(userTaskList, targetListType)).thenReturn(userTaskAdminDTOS);
+
+
 
         mockMvc.perform(
                 get("/api/admin/usertask/user/0/")

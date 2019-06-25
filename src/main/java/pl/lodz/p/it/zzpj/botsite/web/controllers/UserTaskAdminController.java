@@ -47,7 +47,9 @@ public class UserTaskAdminController {
     public List<UserTaskAdminDTO> getAllByUserId(@PathVariable("userId") final Long userId)
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
         List<UserTask> userTaskList = this.userTaskService.getListOfUserTasksByUserId(userId);
-        return mapList(userTaskList);
+        java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskAdminDTO>>() {}.getType();
+        List<UserTaskAdminDTO> userTaskAdminDTOS = this.modelMapper.map(userTaskList, targetListType);
+        return userTaskAdminDTOS;
     }
 
     // GET SINGLE TASK
@@ -97,11 +99,5 @@ public class UserTaskAdminController {
     @ResponseStatus(HttpStatus.OK)
     public void deleteUserTask(@PathVariable("id") Long id) throws UserTaskDeletionException {
         this.userTaskService.deleteUserTask(id);
-    }
-
-    private List<UserTaskAdminDTO> mapList(List<UserTask> userTasks) {
-        List<UserTaskAdminDTO> dtoList = new ArrayList<>();
-        userTasks.forEach( b -> this.modelMapper.map(b, UserTaskUserDTO.class));
-        return dtoList;
     }
 }

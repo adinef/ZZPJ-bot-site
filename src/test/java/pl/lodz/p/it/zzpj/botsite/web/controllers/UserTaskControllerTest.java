@@ -100,8 +100,10 @@ class UserTaskControllerTest {
         UserTaskUserDTO dto = this.realModelMapper.map(userTask, UserTaskUserDTO.class);
         userTaskUserDTOS.add(dto);
 
+        java.lang.reflect.Type targetListType = new TypeToken<List<UserTaskUserDTO>>() {}.getType();
         when(this.userService.findByLogin(principal.getName())).thenReturn(user);
         when(userTaskService.getListOfUserTasksByUserId(anyLong())).thenReturn(userTaskList);
+        when(modelMapper.map(userTaskList, targetListType)).thenReturn(userTaskUserDTOS);
         mockMvc.perform(
                 get("/api/usertask/user/0/")
         ).andExpect(status().isOk());
