@@ -53,15 +53,15 @@ public class UserTaskController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public List<UserTaskDTO> getAllTaskForCurrentUser()
+    public List<UserTaskUserDTO> getAllTaskForCurrentUser()
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
-        List<UserTaskDTO> userTaskDTOs = new ArrayList<>();
+        List<UserTaskUserDTO> userTaskDTOs = new ArrayList<>();
         List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(principalProvider.getUserId());
         modelMapper.map(userTaskList, userTaskDTOs);
         return userTaskDTOs;
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -77,7 +77,7 @@ public class UserTaskController {
     }
 
     //SECURITY + GET SINGLE TASK
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -125,7 +125,7 @@ public class UserTaskController {
         return this.modelMapper.map(updatedTask, UserTaskUserDTO.class);
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping(
             value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
