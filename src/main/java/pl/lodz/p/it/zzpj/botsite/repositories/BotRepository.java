@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface BotRepository extends CrudRepository<Bot, Long> {
     List<Bot> findAllByUser(User user);
+    List<Bot> findAllByName(String name);
 }

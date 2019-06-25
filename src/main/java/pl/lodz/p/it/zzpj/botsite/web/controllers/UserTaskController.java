@@ -5,7 +5,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
@@ -47,7 +47,21 @@ public class UserTaskController {
     }
 
     //SECURITY + GET ALL FOR USER
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
+    @GetMapping(
+            value = "",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserTaskDTO> getAllTaskForCurrentUser()
+            throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
+        List<UserTaskDTO> userTaskDTOs = new ArrayList<>();
+        List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(principalProvider.getUserId());
+        modelMapper.map(userTaskList, userTaskDTOs);
+        return userTaskDTOs;
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -79,7 +93,7 @@ public class UserTaskController {
     }
 
     // SECURITY
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -93,7 +107,8 @@ public class UserTaskController {
     }
 
     // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
-    @Secured("ROLE_USER")
+    //TODO
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping(
             value = "edit/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -127,4 +142,5 @@ public class UserTaskController {
         userTasks.forEach(b -> this.modelMapper.map(b, UserTaskUserDTO.class));
         return dtoList;
     }
+
 }
