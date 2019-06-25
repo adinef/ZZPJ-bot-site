@@ -47,25 +47,7 @@ public class UserTaskController {
     }
 
     //SECURITY + GET ALL FOR USER
-<<<<<<< HEAD
-    @PreAuthorize("hasRole('ROLE_USER')")
-    @GetMapping(
-            value = "",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    @ResponseStatus(HttpStatus.OK)
-    public List<UserTaskUserDTO> getAllTaskForCurrentUser()
-            throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
-        List<UserTaskUserDTO> userTaskDTOs = new ArrayList<>();
-        List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(principalProvider.getUserId());
-        modelMapper.map(userTaskList, userTaskDTOs);
-        return userTaskDTOs;
-    }
-
-    @PreAuthorize("hasRole('ROLE_USER')")
-=======
     @Secured("ROLE_USER")
->>>>>>> parent of 52e3a9c... Merge branch 'master' into 166672013-warstwa-kontrolerow-(taski)
     @GetMapping(
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -81,7 +63,7 @@ public class UserTaskController {
     }
 
     //SECURITY + GET SINGLE TASK
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @Secured("ROLE_USER")
     @GetMapping(
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -128,7 +110,7 @@ public class UserTaskController {
         return this.modelMapper.map(updatedTask, UserTaskUserDTO.class);
     }
 
-    @PreAuthorize("hasRole('ROLE_USER')")
+    @Secured("ROLE_USER")
     @DeleteMapping(
             value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
