@@ -21,4 +21,9 @@ public class PrincipalProviderImpl implements PrincipalProvider {
 
     @Override
     public Long getUserId() { return ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId(); }
+
+    @Override
+    public User getUser() {
+        return ((MyUserDetails)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
+    }
 }

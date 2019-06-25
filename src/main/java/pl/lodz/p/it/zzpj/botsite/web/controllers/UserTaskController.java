@@ -76,7 +76,7 @@ public class UserTaskController {
     @ResponseStatus(HttpStatus.CREATED)
     public UserTaskDTO addTask(@RequestBody UserTaskDTO userTaskDTO) throws UserTaskAdditionException, UserTaskIdAlreadyExistsException {
         UserTask userTask = this.modelMapper.map(userTaskDTO, UserTask.class);
-        userTask.setUser(((MyUserDetails)principalProvider.getPrincipal()).getUser());
+        userTask.setUser(principalProvider.getUser());
         UserTask addedUserTask = userTaskService.addUserTask(userTask);
         return modelMapper.map(addedUserTask, UserTaskDTO.class);
     }

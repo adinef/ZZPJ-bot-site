@@ -23,7 +23,7 @@ public class Message {
 
     @NotNull
     @ManyToOne
-    @JoinColumn(referencedColumnName="login")
+    @JoinColumn(referencedColumnName = "id")
     private User user;
 
     @NotBlank

@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 @Service("userService")
-
 public class UserServiceImpl implements UserDetailsService, UserService {
 
     private final UserRepository userRepository;

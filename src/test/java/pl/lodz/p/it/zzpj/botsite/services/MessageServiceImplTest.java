@@ -9,12 +9,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.MessageDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.MessageNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageUpdateException;
 import pl.lodz.p.it.zzpj.botsite.repositories.MessageRepository;
+import pl.lodz.p.it.zzpj.botsite.web.dto.MessageDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +40,7 @@ class MessageServiceImplTest {
     }
 
     @Test
-    void findByIdShouldReturnEntityOfMessage() throws MessageRetrievalException {
+    void findByIdShouldReturnEntityOfMessage() throws MessageRetrievalException, MessageNotFoundException {
         User user = User
                 .builder()
                 .id(1L)
@@ -53,6 +55,7 @@ class MessageServiceImplTest {
         Assertions.assertEquals((Long) 1L, messageService.findById(1L).getId());
     }
 
+
     @Test
     void findByIdShouldThrowExceptionAfterDatabaseRuntimeException() {
         when(messageRepository.findById(any())).thenThrow(RuntimeException.class);
@@ -62,7 +65,7 @@ class MessageServiceImplTest {
     @Test
     void findByIdShouldThrowExceptionWhenMessageNotFound() {
         when(messageRepository.findById(1L)).thenReturn(Optional.empty());
-        Assertions.assertThrows(MessageRetrievalException.class, () -> messageService.findById(1L));
+        Assertions.assertThrows(MessageNotFoundException.class, () -> messageService.findById(1L));
     }
 
     @Test
@@ -77,14 +80,20 @@ class MessageServiceImplTest {
                 .user(user)
                 .content("content")
                 .build();
-        messageService.addMessage(message);
-        verify(messageRepository).save(message);
+        this.messageService.addMessage(message);
+        verify(this.messageRepository).save(message);
+    }
+
+    @Test
+    void addMessageShouldThrowOnDBError() throws Exception {
+        when(this.messageRepository.save(any())).thenThrow(RuntimeException.class);
+        Assertions.assertThrows(MessageAdditionException.class, () -> this.messageService.addMessage(null));
+
     }
 
 
-
     @Test
-    void getAllByUserIdShouldReturnListOfMessages() throws Exception {
+    void findAllByUserIdShouldReturnListOfMessages() throws Exception {
         List<Message> messages = new ArrayList<>();
         User user = User.builder()
                 .id(1L)
@@ -101,6 +110,12 @@ class MessageServiceImplTest {
                 .build());
         when(messageRepository.findByUserId(any())).thenReturn(messages);
         Assertions.assertEquals(2, messageService.findAllByUserId(1L).size());
+    }
+
+    @Test
+    void findAllByUserIdShouldThrowOnDBError() throws Exception {
+        when(messageRepository.findByUserId(any())).thenThrow(RuntimeException.class);
+        Assertions.assertThrows(MessageRetrievalException.class, () -> messageService.findAllByUserId(1L));
     }
 
 
@@ -128,7 +143,7 @@ class MessageServiceImplTest {
     }
 
     @Test
-    void updateShouldThrowMessageNotFoundExceptionWhenRepositoryThrowsException() throws Exception{
+    void updateShouldThrowMessageNotFoundWhenRepositoryThrows() throws Exception{
         Message message = Message
                 .builder()
                 .id(1L)
@@ -165,5 +180,14 @@ class MessageServiceImplTest {
         }).when(messageRepository).deleteById(any(Long.class));
         messageService.deleteMessage(toBeDeleted);
         Assertions.assertEquals(1, messages.size());
+    }
+
+    @Test
+    void deleteMessageShouldThrowOnDBException() {
+        doThrow(RuntimeException.class).when(messageRepository).deleteById(any(Long.class));
+        Message toBeDeleted = Message.builder()
+                .id(1L)
+                .build();
+        Assertions.assertThrows(MessageDeletionException.class, () -> messageService.deleteMessage(toBeDeleted));
     }
 }
