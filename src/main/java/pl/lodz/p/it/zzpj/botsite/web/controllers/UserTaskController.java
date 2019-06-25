@@ -71,14 +71,12 @@ public class UserTaskController {
     )
     public UserTaskUserDTO getTaskByUserId(@PathVariable("id") final Long taskId)
             throws UserTaskRetrievalException, UserRetrievalException {
-        UserTaskUserDTO userTaskUserDTOS = new UserTaskUserDTO();
         UserTask userTask = userTaskService.findById(taskId);
         User user = this.userService.findByLogin(principalProvider.getName());
         if (!userTask.getUser().getId().equals(user.getId())) {
             throw new UserTaskRetrievalException("Can not get User Task");
         }
-        modelMapper.map(userTask, userTaskUserDTOS);
-        return userTaskUserDTOS;
+        return modelMapper.map(userTask, UserTaskUserDTO.class);
     }
 
     // SECURITY

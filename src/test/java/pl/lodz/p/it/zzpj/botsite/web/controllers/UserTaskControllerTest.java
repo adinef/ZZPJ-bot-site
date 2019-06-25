@@ -1,6 +1,5 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -12,19 +11,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import pl.lodz.p.it.zzpj.botsite.config.errorhandling.RestResponseEntityExceptionHandler;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.UserTaskDeletionException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserTaskNotFoundException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserTaskRetrievalException;
-import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.UserTaskService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.usertasks.UserTaskUserDTO;
@@ -57,11 +54,12 @@ class UserTaskControllerTest {
     private PrincipalProvider principal;
     @InjectMocks
     private UserTaskController userTaskController;
-
+    private RestResponseEntityExceptionHandler exceptionHandler = new RestResponseEntityExceptionHandler(HttpHeaders.EMPTY);
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(userTaskController)
+                .setControllerAdvice(exceptionHandler)
                 .build();
     }
 
@@ -112,49 +110,7 @@ class UserTaskControllerTest {
 
         verify(userTaskService).getListOfUserTasksByUserId(anyLong());
     }
-
-//    @Test
-//    void getTaskByUserIdShouldWorkAsExpected() throws Exception {
-//        Long id = 0L;
-//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.registerModule(new JavaTimeModule());
-//        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-//        Bot bot = Bot.builder()
-//                .id(id)
-//                .name("FirstBot")
-//                .channel("FirstChannel")
-//                .build();
-//
-//        Message message = Message.builder()
-//                .id(id)
-//                .content("Content")
-//                .build();
-//
-//        User user = User.builder()
-//                .id(id)
-//                .login("login")
-//                .build();
-//
-//        UserTask userTask = UserTask.builder()
-//                .id(id)
-//                .bot(bot)
-//                .message(message)
-//                .reminderDate(LocalDateTime.parse("02-02-2018 12:00:11", formatter))
-//                .creationDate(LocalDateTime.parse("01-02-2018 12:00:11", formatter))
-//                .build();
-//
-//        UserTaskUserDTO dto = this.realModelMapper.map(userTask, UserTaskUserDTO.class);
-//        when(this.userTaskService.findById(0L)).thenReturn(userTask);
-//        when(this.userService.findByLogin(principal.getName())).thenReturn(user);
-//        when(modelMapper.map(userTask, UserTaskUserDTO.class)).thenReturn(dto);
-//        mockMvc.perform(
-//                get("/api/usertask/0/")
-//        ).andExpect(status().isOk());
-//
-//        verify(userTaskService).findById(any());
-//    }
-
+    
     @Test
     void addTaskShouldWorkAsExpected() throws Exception {
         Long id = 0L;
