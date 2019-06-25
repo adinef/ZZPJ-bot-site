@@ -84,21 +84,4 @@ class UserTaskServiceTest {
                 .build();
         Assertions.assertThrows(UserTaskAdditionException.class, () -> userTaskService.addUserTask(task));
     }
-
-    @Test
-    void updateShouldProceedWithUpdate() throws UserTaskUpdateException {
-        User user = User
-                .builder()
-                .id(1L)
-                .build();
-        UserTask task = UserTask
-                .builder()
-                .user(user)
-                .id(1L)
-                .reminderDate(LocalDateTime.now().plusDays(1))
-                .build();
-        when(userTaskRepository.save(task)).thenReturn(task);
-        Assertions.assertEquals(task, userTaskService.update(task));
-    }
-
 }
