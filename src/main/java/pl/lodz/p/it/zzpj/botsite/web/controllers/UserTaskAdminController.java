@@ -25,7 +25,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@RequestMapping("/api/usertaskAdmin")
+@RequestMapping("/api/admin/usertask")
 public class UserTaskAdminController {
 
     private final ModelMapper modelMapper;

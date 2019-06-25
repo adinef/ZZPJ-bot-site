@@ -9,7 +9,6 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskAdditionExcept
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface UserTaskService {
@@ -18,7 +17,4 @@ public interface UserTaskService {
     List<UserTask> getListOfUserTasksByUserId(Long userId) throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException;
     UserTask update(UserTask userTask) throws UserTaskUpdateException;
     void deleteUserTask(Long id) throws UserTaskDeletionException;
-    UserTask updateUserTaskReminderDate(UserTask userTask, LocalDateTime reminderDate) throws UserTaskUpdateException;
-    UserTask updateUserTaskIsRepeatableStatus(UserTask userTask, boolean isRepeatable) throws UserTaskUpdateException;
-    UserTask updateUserTaskIsDoneStatus(UserTask userTask, boolean isDone) throws UserTaskUpdateException;
 }

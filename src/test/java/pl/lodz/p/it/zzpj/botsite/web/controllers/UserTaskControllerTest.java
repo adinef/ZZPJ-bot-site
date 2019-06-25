@@ -110,7 +110,7 @@ class UserTaskControllerTest {
 
         verify(userTaskService).getListOfUserTasksByUserId(anyLong());
     }
-    
+
     @Test
     void addTaskShouldWorkAsExpected() throws Exception {
         Long id = 0L;

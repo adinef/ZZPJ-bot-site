@@ -84,41 +84,4 @@ public class UserTaskServiceImpl implements UserTaskService {
             throw new UserTaskDeletionException("Could not delete task.", e);
         }
     }
-
-    @Override
-    public UserTask updateUserTaskReminderDate(UserTask userTask, LocalDateTime reminderDate) throws UserTaskUpdateException {
-        try {
-            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
-            UserTask retrievedTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
-            retrievedTask.setReminderDate(reminderDate);
-            return userTaskRepository.save(retrievedTask);
-        } catch (final Exception e) {
-            throw new UserTaskUpdateException("Task could not be updated.", e);
-        }
-    }
-
-    @Override
-    public UserTask updateUserTaskIsRepeatableStatus(UserTask userTask, boolean isRepeatable) throws UserTaskUpdateException {
-        try {
-            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
-            UserTask retrievedTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
-            retrievedTask.setRepeatable(isRepeatable);
-            return userTaskRepository.save(retrievedTask);
-        } catch (final Exception e) {
-            throw new UserTaskUpdateException("Task could not be updated.", e);
-        }
-    }
-
-    @Override
-    public UserTask updateUserTaskIsDoneStatus(UserTask userTask, boolean isDone) throws UserTaskUpdateException {
-        try {
-            Optional<UserTask> task = this.userTaskRepository.findById(userTask.getId());
-            UserTask retrievedTask = task.orElseThrow(() -> new UserTaskNotFoundException("Task with that ID not found."));
-            retrievedTask.setDone(isDone);
-            return userTaskRepository.save(retrievedTask);
-        } catch (final Exception e) {
-            throw new UserTaskUpdateException("Task could not be updated.", e);
-        }
-    }
-
 }

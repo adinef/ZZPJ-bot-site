@@ -49,7 +49,6 @@ class UserTaskAdminControllerTest {
 
     @Mock
     private ModelMapper modelMapper;
-    private Gson gson = new Gson();
     @Mock
     private UserTaskService userTaskService;
 
@@ -112,7 +111,7 @@ class UserTaskAdminControllerTest {
 
 
         mockMvc.perform(
-                get("/api/usertaskAdmin/user/0/")
+                get("/api/admin/usertask/user/0/")
         ).andExpect(status().isOk());
 
         verify(userTaskService).getListOfUserTasksByUserId(anyLong());
@@ -130,7 +129,7 @@ class UserTaskAdminControllerTest {
 
 
         mockMvc.perform(
-                get("/api/usertaskAdmin/user/0/")
+                get("/api/admin/usertask/user/0/")
         ).andExpect(status().isOk())
         .andExpect(jsonPath("$").isEmpty());
 
@@ -176,7 +175,7 @@ class UserTaskAdminControllerTest {
         when(modelMapper.map(userTask, UserTaskAdminDTO.class)).thenReturn(dto);
 
         mockMvc.perform(
-                get("/api/usertaskAdmin/0/")
+                get("/api/admin/usertask/0/")
         ).andExpect(status().isOk());
 
         verify(userTaskService).findById(any());
@@ -220,7 +219,7 @@ class UserTaskAdminControllerTest {
         when(this.modelMapper.map(dto, UserTask.class)).thenReturn(userTask);
         when(this.modelMapper.map(userTask, UserTaskAdminDTO.class)).thenReturn(dto);
         mockMvc.perform(
-                post("/api/usertaskAdmin")
+                post("/api/admin/usertask")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(dto))
         ).andExpect(status().isCreated());
@@ -266,7 +265,7 @@ class UserTaskAdminControllerTest {
         when(this.modelMapper.map(userTask, UserTaskAdminDTO.class)).thenReturn(dto);
 
         mockMvc.perform(
-                put("/api/usertaskAdmin/edit/0/")
+                put("/api/admin/usertask/edit/0/")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(dto))
         ).andExpect(status().isOk());
@@ -278,7 +277,7 @@ class UserTaskAdminControllerTest {
     void deleteUserTaskShouldWorkAsExpected() throws Exception {
         doNothing().when(userTaskService).deleteUserTask(anyLong());
         mockMvc.perform(
-                delete("/api/usertaskAdmin/0/")
+                delete("/api/admin/usertask/0/")
         ).andExpect(status().isOk());
         verify(userTaskService).deleteUserTask(anyLong());
     }

@@ -118,48 +118,6 @@ class UserTaskServiceTest {
     }
 
     @Test
-    void updateReminderDateShouldUpdateReminderDate() throws UserTaskUpdateException {
-        LocalDateTime today = LocalDateTime.now();
-        UserTask task = UserTask
-                .builder()
-                .id(1L)
-                .reminderDate(today)
-                .build();
-        Assertions.assertEquals(today, task.getReminderDate());
-        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
-        userTaskService.updateUserTaskReminderDate(task, today.plusDays(1));
-        Assertions.assertEquals(today.plusDays(1), task.getReminderDate());
-    }
-
-    @Test
-    void updateIsDoneStatusShouldUpdateIsDone() throws UserTaskUpdateException {
-        LocalDateTime today = LocalDateTime.now();
-        UserTask task = UserTask
-                .builder()
-                .id(1L)
-                .reminderDate(today)
-                .isDone(false)
-                .build();
-        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
-        userTaskService.updateUserTaskIsDoneStatus(task, true);
-        Assertions.assertTrue(task.isDone());
-    }
-
-    @Test
-    void updateIsRepeatableStatusShouldUpdateIsRepeatable() throws UserTaskUpdateException {
-        LocalDateTime today = LocalDateTime.now();
-        UserTask task = UserTask
-                .builder()
-                .id(1L)
-                .reminderDate(today)
-                .isRepeatable(true)
-                .build();
-        when(userTaskRepository.findById(task.getId())).thenReturn(Optional.of(task));
-        userTaskService.updateUserTaskIsRepeatableStatus(task, false);
-        Assertions.assertFalse(task.isDone());
-    }
-
-    @Test
     void deleteUserTaskShouldDeleteTask() throws UserTaskDeletionException {
         LocalDateTime today = LocalDateTime.now();
         UserTask task = UserTask
