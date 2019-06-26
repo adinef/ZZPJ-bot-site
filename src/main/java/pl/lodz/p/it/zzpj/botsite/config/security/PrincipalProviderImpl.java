@@ -2,6 +2,7 @@ package pl.lodz.p.it.zzpj.botsite.config.security;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.web.dto.users.MyUserDetails;
 
 import java.security.Principal;
