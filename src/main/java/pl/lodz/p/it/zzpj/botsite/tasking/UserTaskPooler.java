@@ -6,7 +6,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import pl.lodz.p.it.zzpj.botsite.botservices.BotMessengerFactory;
 import pl.lodz.p.it.zzpj.botsite.botservices.messengers.BotMessenger;
-import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 import pl.lodz.p.it.zzpj.botsite.exceptions.services.MessengerDoesntExistException;
 import pl.lodz.p.it.zzpj.botsite.repositories.UserTaskRepository;
 
@@ -30,8 +29,9 @@ public class UserTaskPooler {
 
     @Scheduled(fixedRate = 60000)
     public void goThroughTasks() {
+        log.info("Beginning tasks maintenance...");
         userTaskRepository
-                .findAllUnfinishedTasks(LocalDateTime.now())
+                .findAllDueTasks(LocalDateTime.now())
                 .parallelStream()
                 .forEach(userTask -> {
                             try {
