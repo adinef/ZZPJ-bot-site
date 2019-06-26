@@ -47,11 +47,8 @@ public class MessageController {
     )
     @ResponseStatus(HttpStatus.OK)
     public List<MessageDTO> getAllMessagesForCurrentUser() throws MessageRetrievalException {
-        List<MessageDTO> messageDTOs = new ArrayList<>();
         List<Message> messages = messageService.findAllByUserId(principalProvider.getUserId());
-        System.out.println(messages.get(0).getContent());
-        this.mapAllMessages(messages, messageDTOs);
-        return messageDTOs;
+        return mapAllMessages(messages);
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
@@ -120,9 +117,11 @@ public class MessageController {
         messageService.deleteMessage(message);
     }
 
-    private void mapAllMessages(List<Message> messages, List<MessageDTO> messageDTOs) {
+    private List<MessageDTO> mapAllMessages(List<Message> messages) {
+        List<MessageDTO> messageDTOs = new ArrayList<>();
         for (Message m : messages) {
             messageDTOs.add(modelMapper.map(m, MessageDTO.class));
         }
+        return messageDTOs;
     }
 }

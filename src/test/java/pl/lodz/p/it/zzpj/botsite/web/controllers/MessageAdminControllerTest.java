@@ -110,7 +110,7 @@ public class MessageAdminControllerTest {
                 .build();
         when(messageService.findById(any())).thenReturn(message);
         mockMvc.perform(
-                get("/api/messages/user/1/message/1")
+                get("/api/messages/message/1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("")
         ).andExpect(status().isOk());
@@ -118,29 +118,10 @@ public class MessageAdminControllerTest {
     }
 
     @Test
-    void getUsersMessageByIdShouldReturnBadRequestWhenWrongUserSpecified() throws Exception {
-        User user = User.builder()
-                .id(1L)
-                .build();
-        Message message = Message.builder()
-                .id(1L)
-                .content("blabla")
-                .user(user)
-                .build();
-        when(messageService.findById(any())).thenReturn(message);
-        mockMvc.perform(
-                get("/api/messages/user/2/message/1")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content("")
-        ).andExpect(status().isBadRequest());
-        verify(messageService).findById(any(Long.class));
-    }
-
-    @Test
     void getUsersMessageByIdShouldReturnBadRequestOnServiceExceptionThrown() throws Exception {
         when(messageService.findById(any())).thenThrow(MessageRetrievalException.class);
         mockMvc.perform(
-                get("/api/messages/user/2/message/1")
+                get("/api/messages/message/1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
         ).andExpect(status().isBadRequest());
     }
@@ -161,7 +142,7 @@ public class MessageAdminControllerTest {
         when(messageService.findById(any())).thenReturn(editedMessage);
         when(messageService.updateMessage(editedMessage)).thenReturn(editedMessage);
         mockMvc.perform(
-                put("/api/messages/user/1/message/2")
+                put("/api/messages/message/2")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
         ).andExpect(status().isOk());
@@ -177,32 +158,12 @@ public class MessageAdminControllerTest {
         MessageDTO dto = this.realModelMapper.map(editedMessage, MessageDTO.class);
         String json = gson.toJson(dto);
         mockMvc.perform(
-                put("/api/messages/user/1/message/2")
+                put("/api/messages/message/2")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
         ).andExpect(status().isBadRequest());
     }
 
-    @Test
-    void editMessageShouldReturnBadRequestWhenWrongUserSpecified() throws Exception {
-        User user = User.builder()
-                .id(1L)
-                .build();
-        Message editedMessage = Message.builder()
-                .id(1L)
-                .content("blabla")
-                .user(user)
-                .build();
-        when(messageService.findById(any())).thenReturn(editedMessage);
-        MessageDTO dto = this.realModelMapper.map(editedMessage, MessageDTO.class);
-        String json = gson.toJson(dto);
-        mockMvc.perform(
-                put("/api/messages/user/2/message/1")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(json)
-        ).andExpect(status().isBadRequest());
-        verify(messageService).findById(any(Long.class));
-    }
 
     @Test
     void editMessageShouldReturnBadRequestOnServiceExceptionThrown() throws Exception {
@@ -218,7 +179,7 @@ public class MessageAdminControllerTest {
         String json = gson.toJson(dto);
         when(messageService.findById(any())).thenThrow(MessageRetrievalException.class);
         mockMvc.perform(
-                put("/api/messages/user/1/message/1")
+                put("/api/messages/message/1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
         ).andExpect(status().isBadRequest());
@@ -253,7 +214,7 @@ public class MessageAdminControllerTest {
         String json = gson.toJson(dto);
         Assertions.assertTrue(!json.isEmpty());
         mockMvc.perform(
-                delete("/api/messages/user/1/message/2")
+                delete("/api/messages/message/2")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json))
                 .andDo(print())
@@ -267,31 +228,11 @@ public class MessageAdminControllerTest {
         when(messageService.findById(any())).thenThrow(MessageRetrievalException.class);
         String json = "";
         mockMvc.perform(
-                delete("/api/messages/user/1/message/2")
+                delete("/api/messages/message/2")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json))
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
-    @Test
-    void deleteMessageShouldReturnBadRequestWhenWrongUserSpecified() throws Exception {
-        User user = User.builder()
-                .id(1L)
-                .build();
-        Message editedMessage = Message.builder()
-                .id(1L)
-                .content("blabla")
-                .user(user)
-                .build();
-        when(messageService.findById(any())).thenReturn(editedMessage);
-        MessageDTO dto = this.realModelMapper.map(editedMessage, MessageDTO.class);
-        String json = gson.toJson(dto);
-        mockMvc.perform(
-                delete("/api/messages/user/2/message/1")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(json)
-        ).andExpect(status().isBadRequest());
-        verify(messageService).findById(any(Long.class));
-    }
 }

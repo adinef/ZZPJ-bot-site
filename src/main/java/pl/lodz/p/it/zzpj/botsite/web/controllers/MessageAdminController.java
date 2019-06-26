@@ -42,44 +42,35 @@ public class MessageAdminController {
     @ResponseStatus(HttpStatus.OK)
     public List<MessageDTO> getAllMessagesByUserId(@PathVariable("userId") final Long userId)
             throws MessageRetrievalException {
-        List<MessageDTO> messageDTOs = new ArrayList<>();
         List<Message> messages = messageService.findAllByUserId(userId);
-        mapAllMessages(messages, messageDTOs);
-        return messageDTOs;
+        return mapAllMessages(messages);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(
-            value = "user/{userId}/message/{messageId}",
+            value = "message/{messageId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public MessageDTO getUsersMessageById(@PathVariable("userId") final Long userId,
-                                          @PathVariable("messageId") final Long messageId)
+    public MessageDTO getUsersMessageById(@PathVariable("messageId") final Long messageId)
             throws MessageRetrievalException, MessageNotFoundException {
         Message message = messageService.findById(messageId);
-        if (!message.getUser().getId().equals(userId)) {
-            throw new MessageRetrievalException("Could not retrieve message. No message with given ID for such user.");
-        }
         return modelMapper.map(message, MessageDTO.class);
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping(
-            value = "user/{userId}/message/{messageId}",
+            value = "message/{messageId}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public MessageDTO editMessageForUser(@PathVariable("userId") Long userId, @PathVariable("messageId") Long messageId,
+    public MessageDTO editMessageForUser(@PathVariable("messageId") Long messageId,
                                          @RequestBody MessageDTO messageDto) throws MessageRetrievalException, MessageUpdateException, MessageNotFoundException {
         if (StringUtils.isBlank(messageDto.getContent())) {
             throw new MessageUpdateException("Content is blank");
         }
         Message message = messageService.findById(messageId);
-        if (!message.getUser().getId().equals(userId)) {
-            throw new MessageUpdateException("Unable to edit message. No message with given ID for such user.");
-        }
         message.setContent(messageDto.getContent());
         Message editedMessage = messageService.updateMessage(message);
         return modelMapper.map(editedMessage, MessageDTO.class);
@@ -87,21 +78,20 @@ public class MessageAdminController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(
-            value = "user/{userId}/message/{messageId}",
+            value = "/message/{messageId}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public void deleteMessageForUser(@PathVariable("userId") Long userId, @PathVariable("messageId") Long messageId) throws MessageRetrievalException, MessageDeletionException, MessageNotFoundException {
+    public void deleteMessage(@PathVariable("messageId") Long messageId) throws MessageRetrievalException, MessageDeletionException, MessageNotFoundException {
         Message message = messageService.findById(messageId);
-        if (!message.getUser().getId().equals(userId)) {
-            throw new MessageDeletionException("Unable to delete message. No message with given ID for such user.");
-        }
         messageService.deleteMessage(message);
     }
 
-    private void mapAllMessages(List<Message> messages, List<MessageDTO> messageDTOs) {
+    private List<MessageDTO> mapAllMessages(List<Message> messages) {
+        List<MessageDTO> messageDTOs = new ArrayList<>();
         for (Message m : messages) {
             messageDTOs.add(modelMapper.map(m, MessageDTO.class));
         }
+        return messageDTOs;
     }
 }
