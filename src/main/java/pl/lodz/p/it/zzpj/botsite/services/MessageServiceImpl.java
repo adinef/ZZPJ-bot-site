@@ -1,6 +1,5 @@
 package pl.lodz.p.it.zzpj.botsite.services;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
@@ -44,16 +43,15 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public Message findById(Long id) throws MessageRetrievalException {
+    public Message findById(Long id) throws MessageRetrievalException, MessageNotFoundException {
+        Optional<Message> message;
         try {
-            Optional<Message> message = this.messageRepository.findById(id);
-            return message
-                    .orElseThrow(
-                            () -> new MessageNotFoundException("Message with that ID not found.")
-                    );
+            message = this.messageRepository.findById(id);
         } catch (final Exception e) {
             throw new MessageRetrievalException("Could not retrieve message by ID", e);
         }
+        return message
+                .orElseThrow(() -> new MessageNotFoundException("Message with that ID not found."));
     }
 
     @Override

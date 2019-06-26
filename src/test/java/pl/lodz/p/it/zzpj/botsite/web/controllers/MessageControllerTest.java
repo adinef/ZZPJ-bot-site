@@ -11,24 +11,31 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
+import pl.lodz.p.it.zzpj.botsite.config.errorhandling.RestResponseEntityExceptionHandler;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Bot;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.MessageDeletionException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.notfound.UserNotFoundException;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.UserRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.MessageAdditionException;
 import pl.lodz.p.it.zzpj.botsite.services.BotService;
 import pl.lodz.p.it.zzpj.botsite.services.MessageService;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MessageDTO;
+import pl.lodz.p.it.zzpj.botsite.web.dto.MyUserDetails;
 import pl.lodz.p.it.zzpj.botsite.web.dto.bots.BotCreationDTO;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +53,7 @@ public class MessageControllerTest {
     @Mock
     MessageService messageService;
 
-    @Mock
-    UserService userService;
+    private RestResponseEntityExceptionHandler exceptionHandler = new RestResponseEntityExceptionHandler(HttpHeaders.EMPTY);
 
     private Gson gson = new Gson();
 
@@ -63,14 +69,15 @@ public class MessageControllerTest {
     private MessageController messageController;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(messageController)
+                .setControllerAdvice(exceptionHandler)
                 .build();
     }
 
     @Test
-    public void createMessageShouldWorkAsExpected() throws Exception {
+    void addMessageShouldWorkAsExpected() throws Exception {
         Long id = 0L;
         User user = User
                 .builder()
@@ -83,9 +90,8 @@ public class MessageControllerTest {
                 .build();
         MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
         String json = gson.toJson(dto);
-
+        when(this.principal.getUser()).thenReturn(user);
         when(this.modelMapper.map(message, MessageDTO.class)).thenReturn(dto);
-        when(this.userService.findByLogin(any())).thenReturn(user);
         when(this.modelMapper.map(dto, Message.class)).thenReturn(message);
         when(messageService.addMessage(any())).thenReturn(message);
 
@@ -98,9 +104,51 @@ public class MessageControllerTest {
         verify(messageService).addMessage(any());
     }
 
+    @Test
+    void addMessageShouldReturnBadRequestOnServiceException() throws Exception {
+        Long id = 0L;
+        User user = User
+                .builder()
+                .id(id)
+                .build();
+        Message message = Message
+                .builder()
+                .content("message")
+                .id(id)
+                .build();
+        MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
+        String json = gson.toJson(dto);
+        when(this.principal.getUser()).thenReturn(user);
+        when(this.modelMapper.map(dto, Message.class)).thenReturn(message);
+        when(messageService.addMessage(any(Message.class))).thenThrow(MessageAdditionException.class);
+        mockMvc.perform(
+                post("/api/messages")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json)
+        ).andExpect(status().isBadRequest());
+
+    }
 
     @Test
-    public void getAllMessagesForCurrentUserShouldWorkAsExpected() throws Exception {
+    void addMessageShouldReturnBadRequestOnContentBlank() throws Exception {
+        Long id = 0L;
+        Message message = Message
+                .builder()
+                .id(id)
+                .build();
+        MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
+        String json = gson.toJson(dto);
+
+        mockMvc.perform(
+                post("/api/messages")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json)
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void getAllMessagesForCurrentUserShouldWorkAsExpected() throws Exception {
         List<Message> messages = new ArrayList<>();
         User user = User.builder()
                 .id(1L)
@@ -129,7 +177,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    public void getMessageByIdForCurrentUserShouldWorkAsExpected() throws Exception {
+    void getMessageByIdForCurrentUserShouldWorkAsExpected() throws Exception {
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -149,7 +197,7 @@ public class MessageControllerTest {
     }
 
     @Test
-    public void editMessageShouldWorkAsExpected() throws Exception {
+    void editMessageShouldWorkAsExpected() throws Exception {
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -173,7 +221,65 @@ public class MessageControllerTest {
     }
 
     @Test
-    public void deleteMessageShouldWorkAsExpected() throws Exception {
+    void editMessageShouldReturnBadRequestOnContentBlank() throws Exception {
+        Long id = 0L;
+        Message message = Message
+                .builder()
+                .content(" ")
+                .id(id)
+                .build();
+        MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
+        String json = gson.toJson(dto);
+        mockMvc.perform(
+                put("/api/messages/0")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json)
+        ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void editMessageShouldReturnBadRequestOnExceptionThrownByService() throws Exception {
+        Long id = 0L;
+        Message message = Message
+                .builder()
+                .content("wrongUser")
+                .id(id)
+                .build();
+        MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
+        String json = gson.toJson(dto);
+        when(this.messageService.findById(any())).thenThrow(MessageRetrievalException.class);
+        mockMvc.perform(
+                put("/api/messages/0")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json)
+        ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void editMessageShouldReturnBadRequestOnWrongUser() throws Exception {
+        Long id = 0L;
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Message message = Message
+                .builder()
+                .user(user)
+                .content("wrongUser")
+                .id(id)
+                .build();
+        MessageDTO dto = this.realModelMapper.map(message, MessageDTO.class);
+        String json = gson.toJson(dto);
+        when(this.messageService.findById(any())).thenReturn(message);
+        when(this.principal.getUserId()).thenReturn(2L);
+        mockMvc.perform(
+                put("/api/messages/0")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json)
+        ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteMessageShouldWorkAsExpected() throws Exception {
         List<Message> messages = new ArrayList<>();
         User user = User.builder()
                 .id(1L)
@@ -209,5 +315,51 @@ public class MessageControllerTest {
                 .andExpect(status().isOk());
         verify(messageService).deleteMessage(any());
         Assertions.assertEquals(1, messages.size());
+    }
+    @Test
+    void deleteMessageShouldThrowOnWrongUser() throws Exception {
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Message toBeDeleted = Message.builder()
+                .id(1L)
+                .content("blabla")
+                .user(user)
+                .build();
+        when(messageService.findById(any())).thenReturn(toBeDeleted);
+        when(principal.getUserId()).thenReturn(2L);
+        MessageDTO dto = this.realModelMapper.map(toBeDeleted, MessageDTO.class);
+        String json = gson.toJson(dto);
+        Assertions.assertTrue(!json.isEmpty());
+        mockMvc.perform(
+                delete("/api/messages/1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteMessageShouldThrowServiceExceptionThrown() throws Exception {
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Message toBeDeleted = Message.builder()
+                .id(1L)
+                .content("blabla")
+                .user(user)
+                .build();
+        when(messageService.findById(any())).thenReturn(toBeDeleted);
+        when(principal.getUserId()).thenReturn(user.getId());
+        doThrow(MessageDeletionException.class).when(messageService).deleteMessage(any());
+        MessageDTO dto = this.realModelMapper.map(toBeDeleted, MessageDTO.class);
+        String json = gson.toJson(dto);
+        Assertions.assertTrue(!json.isEmpty());
+        mockMvc.perform(
+                delete("/api/messages/1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 }

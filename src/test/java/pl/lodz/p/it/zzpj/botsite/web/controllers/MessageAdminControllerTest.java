@@ -9,12 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import pl.lodz.p.it.zzpj.botsite.config.errorhandling.RestResponseEntityExceptionHandler;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.Message;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
+import pl.lodz.p.it.zzpj.botsite.exceptions.entity.retrieval.MessageRetrievalException;
 import pl.lodz.p.it.zzpj.botsite.services.MessageService;
 import pl.lodz.p.it.zzpj.botsite.web.dto.MessageDTO;
 
@@ -30,6 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MessageAdminControllerTest {
 
     private MockMvc mockMvc;
+
+    private RestResponseEntityExceptionHandler exceptionHandler = new RestResponseEntityExceptionHandler(HttpHeaders.EMPTY);
 
     @Mock
     MessageService messageService;
@@ -48,14 +53,15 @@ public class MessageAdminControllerTest {
     private MessageAdminController messageController;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         mockMvc = MockMvcBuilders
                 .standaloneSetup(messageController)
+                .setControllerAdvice(exceptionHandler)
                 .build();
     }
 
     @Test
-    public void getAllMessagesByUserIdShouldWorkAsExpected() throws Exception {
+    void getAllMessagesByUserIdShouldWorkAsExpected() throws Exception {
         List<Message> messages = new ArrayList<>();
         User user = User.builder()
                 .id(1L)
@@ -83,7 +89,17 @@ public class MessageAdminControllerTest {
     }
 
     @Test
-    public void getUsersMessageByIdShouldWorkAsExpected() throws Exception {
+    void getAllMessagesByUserIdShouldReturnBadRequestServiceExceptionThrown() throws Exception {
+        when(messageService.findAllByUserId(any())).thenThrow(MessageRetrievalException.class);
+        mockMvc.perform(
+                get("/api/messages/user/1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        ).andExpect(status().isBadRequest());
+        verify(messageService).findAllByUserId(any(Long.class));
+    }
+
+    @Test
+    void getUsersMessageByIdShouldWorkAsExpected() throws Exception {
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -94,16 +110,25 @@ public class MessageAdminControllerTest {
                 .build();
         when(messageService.findById(any())).thenReturn(message);
         mockMvc.perform(
-                get("/api/messages/user/1/message/1")
+                get("/api/messages/message/1")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content("")
         ).andExpect(status().isOk());
         verify(messageService).findById(any(Long.class));
     }
 
+    @Test
+    void getUsersMessageByIdShouldReturnBadRequestOnServiceExceptionThrown() throws Exception {
+        when(messageService.findById(any())).thenThrow(MessageRetrievalException.class);
+        mockMvc.perform(
+                get("/api/messages/message/1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        ).andExpect(status().isBadRequest());
+    }
+
 
     @Test
-    public void editMessageShouldWorkAsExpected() throws Exception {
+    void editMessageShouldWorkAsExpected() throws Exception {
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -117,7 +142,7 @@ public class MessageAdminControllerTest {
         when(messageService.findById(any())).thenReturn(editedMessage);
         when(messageService.updateMessage(editedMessage)).thenReturn(editedMessage);
         mockMvc.perform(
-                put("/api/messages/user/1/message/2")
+                put("/api/messages/message/2")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json)
         ).andExpect(status().isOk());
@@ -125,7 +150,43 @@ public class MessageAdminControllerTest {
     }
 
     @Test
-    public void deleteMessageShouldWorkAsExpected() throws Exception {
+    void editMessageShouldReturnBadRequestOnContentBlank() throws Exception {
+        Message editedMessage = Message.builder()
+                .id(2L)
+                .content(" ")
+                .build();
+        MessageDTO dto = this.realModelMapper.map(editedMessage, MessageDTO.class);
+        String json = gson.toJson(dto);
+        mockMvc.perform(
+                put("/api/messages/message/2")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json)
+        ).andExpect(status().isBadRequest());
+    }
+
+
+    @Test
+    void editMessageShouldReturnBadRequestOnServiceExceptionThrown() throws Exception {
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Message editedMessage = Message.builder()
+                .id(1L)
+                .content("blabla")
+                .user(user)
+                .build();
+        MessageDTO dto = this.realModelMapper.map(editedMessage, MessageDTO.class);
+        String json = gson.toJson(dto);
+        when(messageService.findById(any())).thenThrow(MessageRetrievalException.class);
+        mockMvc.perform(
+                put("/api/messages/message/1")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json)
+        ).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deleteMessageShouldWorkAsExpected() throws Exception {
         List<Message> messages = new ArrayList<>();
         User user = User.builder()
                 .id(1L)
@@ -153,7 +214,7 @@ public class MessageAdminControllerTest {
         String json = gson.toJson(dto);
         Assertions.assertTrue(!json.isEmpty());
         mockMvc.perform(
-                delete("/api/messages/user/1/message/2")
+                delete("/api/messages/message/2")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(json))
                 .andDo(print())
@@ -161,4 +222,17 @@ public class MessageAdminControllerTest {
         verify(messageService).deleteMessage(any());
         Assertions.assertEquals(1, messages.size());
     }
+
+    @Test
+    void deleteMessageForUserShouldReturnBadRequestOnServiceExceptionThrown() throws Exception {
+        when(messageService.findById(any())).thenThrow(MessageRetrievalException.class);
+        String json = "";
+        mockMvc.perform(
+                delete("/api/messages/message/2")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
 }
