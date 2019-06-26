@@ -129,7 +129,7 @@ class UserTaskAdminControllerTest {
     }
 
     @Test
-    void getTaskByUserIdShouldWorkAsExpected() throws Exception {
+    void getTaskByIdShouldWorkAsExpected() throws Exception {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
         String c = LocalDateTime.now().format(formatter);
         String r = LocalDateTime.now().plusDays(2).format(formatter);
@@ -257,7 +257,7 @@ class UserTaskAdminControllerTest {
         when(this.modelMapper.map(userTask, UserTaskAdminDTO.class)).thenReturn(dto);
 
         mockMvc.perform(
-                put("/api/admin/usertask/edit/0/")
+                put("/api/admin/usertask/0/")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(dto))
         ).andExpect(status().isOk());

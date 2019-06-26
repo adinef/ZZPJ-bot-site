@@ -2,11 +2,10 @@ package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.entities.UserTask;
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.deletion.UserTaskDeletionException;
@@ -39,7 +38,7 @@ public class UserTaskAdminController {
     }
 
     //GET ALL FOR USER
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(
             value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
@@ -51,20 +50,20 @@ public class UserTaskAdminController {
     }
 
     // GET SINGLE TASK
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
-    public UserTaskAdminDTO getTaskByUserId(@PathVariable("id") final Long taskId)
+    public UserTaskAdminDTO getTaskById(@PathVariable("id") final Long taskId)
             throws UserTaskRetrievalException {
         UserTask userTask = this.userTaskService.findById(taskId);
         return this.modelMapper.map(userTask, UserTaskAdminDTO.class);
     }
 
     // ADD TASK
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -77,9 +76,9 @@ public class UserTaskAdminController {
     }
 
     // UPDATE TASK
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PutMapping(
-            value = "edit/{id}",
+            value = "{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -91,7 +90,7 @@ public class UserTaskAdminController {
     }
 
     // DELETE TASK
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(
             value = "/{id}")
     @ResponseStatus(HttpStatus.OK)

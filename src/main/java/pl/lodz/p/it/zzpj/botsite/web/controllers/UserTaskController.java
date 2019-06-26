@@ -1,11 +1,9 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
@@ -49,7 +47,7 @@ public class UserTaskController {
     //SECURITY + GET ALL FOR USER
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
-            value = "user/{userId}",
+            value = "user",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
@@ -67,7 +65,7 @@ public class UserTaskController {
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserTaskUserDTO getTaskByUserId(@PathVariable("id") final Long taskId)
+    public UserTaskUserDTO getTaskById(@PathVariable("id") final Long taskId)
             throws UserTaskRetrievalException, UserRetrievalException {
         UserTask userTask = this.userTaskService.findById(taskId);
         User user = this.userService.findByLogin(this.principalProvider.getName());
@@ -92,10 +90,9 @@ public class UserTaskController {
     }
 
     // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
-    //TODO
     @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping(
-            value = "edit/{id}",
+            value = "{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -110,7 +107,7 @@ public class UserTaskController {
         return this.modelMapper.map(updatedTask, UserTaskUserDTO.class);
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping(
             value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
