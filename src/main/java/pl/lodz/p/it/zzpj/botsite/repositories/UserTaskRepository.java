@@ -12,6 +12,6 @@ import java.util.List;
 @Repository
 public interface UserTaskRepository extends CrudRepository<UserTask, Long> {
     List<UserTask> findAllByUser(User user);
-    @Query("select u from UserTask u where u.reminderDate >= :time and u.isDone = false")
-    List<UserTask> findAllUnfinishedTasks(LocalDateTime time);
+    @Query("select u from UserTask u where u.reminderDate <= :time and u.isDone = false")
+    List<UserTask> findAllDueTasks(LocalDateTime time);
 }

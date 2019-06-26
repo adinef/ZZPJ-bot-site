@@ -100,7 +100,6 @@ class UserTaskControllerTest {
         UserTaskUserDTO dto = this.realModelMapper.map(userTask, UserTaskUserDTO.class);
         userTaskUserDTOS.add(dto);
 
-        when(this.userService.findByLogin(principal.getName())).thenReturn(user);
         when(userTaskService.getListOfUserTasksByUserId(anyLong())).thenReturn(userTaskList);
         mockMvc.perform(
                 get("/api/usertask/user/0/")
