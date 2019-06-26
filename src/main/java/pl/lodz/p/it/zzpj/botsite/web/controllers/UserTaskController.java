@@ -49,16 +49,13 @@ public class UserTaskController {
     //SECURITY + GET ALL FOR USER
     @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
-            value = "user/{userId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.OK)
     public List<UserTaskUserDTO> getAllTaskForCurrentUser()
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException {
-        List<UserTaskUserDTO> userTaskDTOs = new ArrayList<>();
         List<UserTask> userTaskList = userTaskService.getListOfUserTasksByUserId(principalProvider.getUserId());
-        modelMapper.map(userTaskList, userTaskDTOs);
-        return userTaskDTOs;
+        return mapList(userTaskList);
     }
 
     //SECURITY + GET SINGLE TASK

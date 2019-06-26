@@ -83,11 +83,6 @@ class UserTaskControllerTest {
                 .content("Content")
                 .build();
 
-        User user = User.builder()
-                .id(id)
-                .login("login")
-                .build();
-
         UserTask userTask = UserTask.builder()
                 .id(id)
                 .bot(bot)
@@ -102,7 +97,7 @@ class UserTaskControllerTest {
 
         when(userTaskService.getListOfUserTasksByUserId(anyLong())).thenReturn(userTaskList);
         mockMvc.perform(
-                get("/api/usertask/user/0/")
+                get("/api/usertask")
         ).andExpect(status().isOk());
 
         verify(userTaskService).getListOfUserTasksByUserId(anyLong());
