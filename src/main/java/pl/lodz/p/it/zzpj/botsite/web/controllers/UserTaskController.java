@@ -1,11 +1,10 @@
 package pl.lodz.p.it.zzpj.botsite.web.controllers;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.zzpj.botsite.config.security.PrincipalProvider;
 import pl.lodz.p.it.zzpj.botsite.entities.User;
@@ -20,7 +19,6 @@ import pl.lodz.p.it.zzpj.botsite.exceptions.entity.saving.UserTaskUpdateExceptio
 import pl.lodz.p.it.zzpj.botsite.exceptions.entity.unconsistent.UserTaskIdAlreadyExistsException;
 import pl.lodz.p.it.zzpj.botsite.services.UserService;
 import pl.lodz.p.it.zzpj.botsite.services.UserTaskService;
-import pl.lodz.p.it.zzpj.botsite.web.dto.usertasks.UserTaskAdminDTO;
 import pl.lodz.p.it.zzpj.botsite.web.dto.usertasks.UserTaskUserDTO;
 
 import java.util.ArrayList;
@@ -47,28 +45,25 @@ public class UserTaskController {
     }
 
     //SECURITY + GET ALL FOR USER
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
-            value = "user/{userId}",
+            value = "user",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public List<UserTaskUserDTO> getAllByUserId(@PathVariable("userId") final Long userId)
+    public List<UserTaskUserDTO> getAllByCurrentUser()
             throws UserTaskNotFoundException, UserNotFoundException, UserTaskUpdateException, UserRetrievalException, UserTaskRetrievalException {
         User user = this.userService.findByLogin(this.principalProvider.getName());
-        if (!user.getId().equals(userId)) {
-            throw new UserTaskRetrievalException("Can not get User Tasks");
-        }
-        List<UserTask> userTaskList = this.userTaskService.getListOfUserTasksByUserId(userId);
+        List<UserTask> userTaskList = this.userTaskService.getListOfUserTasksByUserId(user.getId());
         return mapList(userTaskList);
     }
 
     //SECURITY + GET SINGLE TASK
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @GetMapping(
             value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public UserTaskUserDTO getTaskByUserId(@PathVariable("id") final Long taskId)
+    public UserTaskUserDTO getTaskById(@PathVariable("id") final Long taskId)
             throws UserTaskRetrievalException, UserRetrievalException {
         UserTask userTask = this.userTaskService.findById(taskId);
         User user = this.userService.findByLogin(this.principalProvider.getName());
@@ -79,7 +74,7 @@ public class UserTaskController {
     }
 
     // SECURITY
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PostMapping(
             value = "",
             consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -93,9 +88,9 @@ public class UserTaskController {
     }
 
     // CHECK IF USER HAS RIGHT TO UPDATE THE TASK
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @PutMapping(
-            value = "edit/{id}",
+            value = "{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -110,7 +105,7 @@ public class UserTaskController {
         return this.modelMapper.map(updatedTask, UserTaskUserDTO.class);
     }
 
-    @Secured("ROLE_USER")
+    @PreAuthorize("hasRole('ROLE_USER')")
     @DeleteMapping(
             value = "/{id}")
     @ResponseStatus(HttpStatus.OK)

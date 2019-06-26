@@ -64,7 +64,7 @@ class UserTaskControllerTest {
     }
 
     @Test
-    void getAllByUserIdShouldWorkAsExpected() throws Exception {
+    void getAllByCurrentUserShouldWorkAsExpected() throws Exception {
         Long id = 0L;
         List<UserTaskUserDTO> userTaskUserDTOS = new ArrayList<>();
         List<UserTask> userTaskList = new ArrayList<>();
@@ -103,7 +103,7 @@ class UserTaskControllerTest {
         when(this.userService.findByLogin(principal.getName())).thenReturn(user);
         when(userTaskService.getListOfUserTasksByUserId(anyLong())).thenReturn(userTaskList);
         mockMvc.perform(
-                get("/api/usertask/user/0/")
+                get("/api/usertask/user/")
         ).andExpect(status().isOk());
 
         verify(userTaskService).getListOfUserTasksByUserId(anyLong());
@@ -194,7 +194,7 @@ class UserTaskControllerTest {
         when(this.modelMapper.map(userTask, UserTaskUserDTO.class)).thenReturn(dto);
 
         mockMvc.perform(
-                put("/api/usertask/edit/0/")
+                put("/api/usertask/0/")
                         .contentType(MediaType.APPLICATION_JSON_UTF8)
                         .content(objectMapper.writeValueAsString(dto))
         ).andExpect(status().isOk());
